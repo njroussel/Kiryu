@@ -1,21 +1,9 @@
 #include <iostream>
-#include <nanogui/screen.h>
 #include <Eigen/Dense>
 
 using Eigen::MatrixXd;
 
-
 int main() {
-    nanogui::init();
-
-    nanogui::Screen myScreen(Eigen::Vector2i(200, 200), "Kiryu");
-    myScreen.drawAll();
-    myScreen.setVisible(true);
-
-    nanogui::mainloop();
-
-    nanogui::shutdown();
-
     std::cout << "Hello world!" << std::endl;
 
     MatrixXd m(2,2);

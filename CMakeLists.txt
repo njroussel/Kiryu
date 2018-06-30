@@ -10,9 +10,6 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     # Eigen linear algebra library
     ${EIGEN_INCLUDE_DIR}
-    # NanoGUI user interface library
-    ${NANOGUI_INCLUDE_DIR}
-    ${NANOGUI_EXTRA_INCS}
     )
 
 add_executable(kiryu
@@ -20,6 +17,5 @@ add_executable(kiryu
     src/main.cpp
     )
 
-add_definitions(${NANOGUI_EXTRA_DEFS})
 
-target_link_libraries(kiryu nanogui ${NANOGUI_EXTRA_LIBS})
+target_link_libraries(kiryu)
