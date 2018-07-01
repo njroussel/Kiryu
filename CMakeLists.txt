@@ -6,7 +6,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory(ext)
 
 add_executable(kiryu
+    # Header files
+    include/kiryu/common.h
+    include/kiryu/screen.h
+
     # Source files
+    src/screen.cpp
     src/main.cpp
     )
 
