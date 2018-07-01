@@ -1,3 +1,10 @@
 [submodule "ext/eigen"]
 	path = ext/eigen
 	url = git@github.com:eigenteam/eigen-git-mirror.git
+[submodule "ext/glfw"]
+	path = ext/glfw
+	url = git@github.com:glfw/glfw.git
+[submodule "ext/glad"]
+	path = ext/glad
+	url = git@github.com:Dav1dde/glad.git
+	branch = c
