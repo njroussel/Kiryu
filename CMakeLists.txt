@@ -24,6 +24,8 @@ target_include_directories(kiryu PRIVATE
     ${GLFW_INCLUDE_DIR}
     # GLAD OpenGL function loader
     ${GLAD_INCLUDE_DIR}
+    # TinyObjLoader OBJ mesh loader
+    ${TINYOBJLOADER_INCLUDE_DIR}
     )
 
-target_link_libraries(kiryu glfw glad)
+target_link_libraries(kiryu glfw glad tinyobjloader)

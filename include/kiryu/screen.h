@@ -13,7 +13,7 @@ class KiryuScreen {
 
         bool wasCreated();
 
-        void bindTexture(float *pixels); 
+        void bindTexture(float *pixels);
 
         void render();
 
@@ -46,11 +46,11 @@ class KiryuScreen {
             uniform sampler2D tex;
             void main()
             {
-                outColor = texture(tex, uv); 
+                outColor = texture(tex, uv);
             })glsl";
 
-        uint16_t m_width, m_height; 
-        bool m_successInit; 
+        uint16_t m_width, m_height;
+        bool m_successInit;
         GLFWwindow *m_window;
         GLuint m_program, m_fShader, m_vShader, m_vBuffer, m_vao, m_texture;
 };

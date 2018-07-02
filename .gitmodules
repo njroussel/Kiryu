@@ -8,3 +8,6 @@
 	path = ext/glad
 	url = git@github.com:Dav1dde/glad.git
 	branch = c
+[submodule "ext/tinyobjloader"]
+	path = ext/tinyobjloader
+	url = git@github.com:syoyo/tinyobjloader.git

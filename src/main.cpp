@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Eigen/Dense>
+#include <tiny_obj_loader.h>
 
 #include <kiryu/screen.h>
 
@@ -8,14 +9,12 @@ using Eigen::MatrixXd;
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 480
 
-
 static float CUSTOM_FRAME1[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
 static float CUSTOM_FRAME2[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
 static const int CUSTOM_FRAME1_ROW = 40;
 static const int CUSTOM_FRAME1_COL = 40;
 static const int CUSTOM_FRAME2_ROW = 100;
 static const int CUSTOM_FRAME2_COL = 100;
-
 
 int main() {
     for (int i = 0; i < WINDOW_WIDTH; i++) {
@@ -78,6 +77,25 @@ int main() {
     m(0,1) = -1;
     m(1,1) = m(1,0) + m(0,1);
     std::cout << m << std::endl;
+
+    std::string inputfile = "../res/models/teapot.obj";
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+
+    std::string err;
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, inputfile.c_str());
+
+    if (!err.empty()) { // `err` may contain warning message.
+        std::cerr << err << std::endl;
+    }
+
+    if (!ret) {
+        std::cerr << "Could not load obj!" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::cout << attrib.vertices[0] << std::endl;
 
     return EXIT_SUCCESS;
 }

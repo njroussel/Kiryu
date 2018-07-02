@@ -14,7 +14,7 @@ KiryuScreen::KiryuScreen(uint16_t width, uint16_t height):
     }
 
     // TODO: Doesn't fully work in i3wm ?
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); 
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
     glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
     glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
