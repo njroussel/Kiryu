@@ -9,8 +9,8 @@
 
 using Eigen::MatrixXd;
 
-#define WINDOW_WIDTH 720
-#define WINDOW_HEIGHT 480
+#define WINDOW_WIDTH 520
+#define WINDOW_HEIGHT 320
 
 int main() {
     std::string inputfile = "../res/models/triangle.obj";
@@ -42,6 +42,9 @@ int main() {
     float outputFrame[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
     for (int i = 0; i < WINDOW_WIDTH; i++) {
         for (int j = 0; j < WINDOW_HEIGHT; j++) {
+            std::cout << i * WINDOW_HEIGHT + j << " / " <<
+                WINDOW_WIDTH * WINDOW_HEIGHT << std::endl;
+
             Ray3f ray = sensor.generateRay(i, j, 0.5, 0.5);
 
             bool intersection = false;
@@ -119,7 +122,6 @@ int main() {
         std::cerr << "Could not create screen!" << std::endl;
         return EXIT_FAILURE;
     }
-
 
     screen->bindTexture(outputFrame);
     int counter = 0;
