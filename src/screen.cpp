@@ -2,7 +2,7 @@
 
 #include <kiryu/screen.h>
 
-KiryuScreen::KiryuScreen(uint16_t width, uint16_t height):
+Screen::Screen(uint16_t width, uint16_t height):
     m_width(width), m_height(height)
 {
     m_successInit = true;
@@ -108,11 +108,11 @@ KiryuScreen::KiryuScreen(uint16_t width, uint16_t height):
     glViewport(0, 0, m_width, m_height);
 }
 
-void KiryuScreen::destroyWindowOnClose(GLFWwindow *window) {
+void Screen::destroyWindowOnClose(GLFWwindow *window) {
     glfwDestroyWindow(window);
 }
 
-void KiryuScreen::bindTexture(float *pixels) {
+void Screen::bindTexture(float *pixels) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height,
@@ -124,7 +124,7 @@ void KiryuScreen::bindTexture(float *pixels) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
-KiryuScreen::~KiryuScreen() {
+Screen::~Screen() {
     glDeleteTextures(1, &m_texture);
     glDeleteProgram(m_program);
     glDeleteShader(m_fShader);
@@ -135,12 +135,12 @@ KiryuScreen::~KiryuScreen() {
     glfwTerminate();
 }
 
-bool KiryuScreen::wasCreated() {
+bool Screen::wasCreated() {
     return m_successInit;
 }
 
 
-void KiryuScreen::render() {
+void Screen::render() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -150,7 +150,7 @@ void KiryuScreen::render() {
 }
 
 
-bool KiryuScreen::isActive() {
+bool Screen::isActive() {
     return !glfwWindowShouldClose(m_window);
 }
 

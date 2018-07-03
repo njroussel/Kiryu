@@ -8,9 +8,14 @@ add_subdirectory(ext)
 add_executable(kiryu
     # Header files
     include/kiryu/common.h
+    include/kiryu/vector.h
+    include/kiryu/ray.h
+    include/kiryu/sensor.h
+    include/kiryu/mesh.h
     include/kiryu/screen.h
 
     # Source files
+    src/sensor.cpp
     src/screen.cpp
     src/main.cpp
     )

@@ -5,11 +5,11 @@
 
 #include <kiryu/common.h>
 
-class KiryuScreen {
+class Screen {
     public:
-        KiryuScreen(uint16_t width, uint16_t height);
+        Screen(uint16_t width, uint16_t height);
 
-        ~KiryuScreen();
+        ~Screen();
 
         bool wasCreated();
 
