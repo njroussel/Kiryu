@@ -13,12 +13,12 @@ Sensor::Sensor(Vector3f position, Vector3f target, Vector3f up, Float fov,
 Ray3f Sensor::generateRay(uint16_t xPixel, uint16_t yPixel, Float xSample,
         Float ySample)
 {
-    float worldPixelSize = EPSILON * std::atan(m_fov / 2.0f)  * 2.0f / m_width;
+    float worldPixelSize = KIRYU_EPSILON * std::atan(m_fov / 2.0f)  * 2.0f / m_width;
 
     Vector3f nearPlaneHorizon = m_target.cross(m_up);
     Vector3f worldTopLeftNearPlane =
         m_position +
-        m_target * EPSILON +
+        m_target * KIRYU_EPSILON +
         nearPlaneHorizon * worldPixelSize * -m_width / 2.0f +
         m_up * worldPixelSize * m_height / 2.0f;
 

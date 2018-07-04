@@ -9,8 +9,39 @@
 
 using Eigen::MatrixXd;
 
-#define WINDOW_WIDTH 520
-#define WINDOW_HEIGHT 320
+#define WINDOW_WIDTH 720
+#define WINDOW_HEIGHT 480 
+
+bool findIntersection(Vector3f *vertices, Ray3f *ray,
+        Vector3f &outIntersectionPoint, Float &u, Float &v)
+{
+    Vector3f edge1 = vertices[1] - vertices[0];
+    Vector3f edge2 = vertices[2] - vertices[0];
+    Vector3f h = ray->direction.cross(edge2);
+    Float a = edge1.dot(h);
+    if (a > -KIRYU_EPSILON && a < KIRYU_EPSILON){
+        return false;
+    }
+    Float l = 1 / a;
+    Vector3f s = ray->origin - vertices[0];
+    u = l * (s.dot(h));
+    if (u < 0.0 || u > 1.0) {
+        return false;
+    }
+    Vector3f q = s.cross(edge1);
+    v = l * ray->direction.dot(q);
+    if (v < 0.0 || u + v > 1.0) {
+        return false;
+    }
+
+    Float t = l * edge2.dot(q);
+    if (t > KIRYU_EPSILON) {
+        outIntersectionPoint = ray->origin + ray->direction * t;
+        return true;
+    }
+
+    return false;
+}
 
 int main() {
     std::string inputfile = "../res/models/triangle.obj";
@@ -33,6 +64,10 @@ int main() {
     tinyobj::shape_t shape = shapes[0];
     tinyobj::mesh_t mesh = shape.mesh;
 
+    Mesh myMesh(mesh.indices.size(), mesh.indices.data(),
+            attrib.vertices.data(),attrib.normals.data(),
+            attrib.texcoords.data());
+
     Vector3f position = {0, 0, 0};
     Vector3f target = {1, 0, 0};
     Vector3f up = {0, 0, 1};
@@ -48,15 +83,16 @@ int main() {
             Ray3f ray = sensor.generateRay(i, j, 0.5, 0.5);
 
             bool intersection = false;
+            Vector3f intersectionPoint;
+            Vector3f closestIntersection;
+            Float u, v;
+            Float closestU, closestV;
+            size_t closestFaceIndex;
+            Float minIntersectionDistance = std::numeric_limits<float>::infinity();
+
             size_t index_offset = 0;
 
             for (size_t f = 0; f < mesh.num_face_vertices.size(); f++) {
-                int fv = mesh.num_face_vertices[f];
-                if (fv != 3) {
-                    std::cerr << "Mesh has non-triangle faces!" << std::endl;
-                    return EXIT_FAILURE;
-                }
-
                 Vector3f vertices[3];
 
                 for (size_t v = 0; v < 3; v++) {
@@ -69,50 +105,54 @@ int main() {
                         vertices[v] = {vx, vy, vz};
                     }
                 }
-                index_offset += fv;
 
-                Vector3f e0 = vertices[1] - vertices[0];
-                Vector3f e1 = vertices[2] - vertices[0];
-                Float dotRayTriangle = e0.dot(e1.cross(ray.direction));
+                index_offset += 3;
 
-                if (dotRayTriangle > -1e-8f && dotRayTriangle < 1e-8f) {
-                    std::cout << "Ray parallel to face!" << std::endl; 
-                    continue;
-                }
+                intersection |= findIntersection(vertices, &ray,
+                        intersectionPoint, u, v);
 
-                Vector4f v0;
-                v0 << vertices[0], 1.0f;
-
-                Vector4f v1;
-                v1 << vertices[1], 1.0f;
-
-                Vector4f v2;
-                v2 << vertices[2], 1.0f;
-
-                Vector4f d;
-                d << ray.direction, 0.0f;
-
-                Vector4f o;
-                o << ray.origin, 1.0f;
-
-                Matrix4f mat;
-                mat << v0, v1, v2, -d;
-
-                Matrix4f matInv = mat.inverse();
-                Vector4f solution = matInv * o;
-
-                if (solution[0] <= 1 && solution[1] <= 1 && solution[2] <=1) {
-                    intersection = true;
+                if (intersection) {
+                    Float distance = (intersectionPoint - ray.origin).norm();
+                    if (distance < minIntersectionDistance) {
+                        closestIntersection = intersectionPoint;
+                        closestU = u;
+                        closestV = v;
+                        closestFaceIndex = index_offset - 3;
+                    }
                 }
             }
 
-            for (int k = 0; k < 3; k++) {
-                float value = 0.0f;
-                if (intersection) {
-                    value = 1.0f;
+            if (intersection) {
+                Vector3f normals[3];
+
+                for (size_t v = 0; v < 3; v++) {
+                    tinyobj::index_t idx = mesh.indices[closestFaceIndex + v];
+
+                    if (idx.vertex_index >=0) {
+                        tinyobj::real_t nx = attrib.normals[3*idx.vertex_index+0];
+                        tinyobj::real_t ny = attrib.normals[3*idx.vertex_index+1];
+                        tinyobj::real_t nz = attrib.normals[3*idx.vertex_index+2];
+                        normals[v] = {nx, ny, nz};
+                        std::cout << normals[1] << std::endl;
+                        std::cout << "------------" << std::endl;
+
+                    }
                 }
-                int index = j * (WINDOW_WIDTH * 3) + i * 3 + k;
-                outputFrame[index] = value;
+
+                Vector3f color = closestU * normals[1] + closestV * normals[2] +
+                    (1 - closestU - closestV) * normals[0];
+
+                for (int k = 0; k < 3; k++) {
+                    int index = j * (WINDOW_WIDTH * 3) + i * 3 + k;
+                    outputFrame[index] = color[k];
+                }
+
+            } else {
+                float value = 0.0f;
+                for (int k = 0; k < 3; k++) {
+                    int index = j * (WINDOW_WIDTH * 3) + i * 3 + k;
+                    outputFrame[index] = value;
+                }
             }
         }
     }

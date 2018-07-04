@@ -16,6 +16,7 @@ add_executable(kiryu
 
     # Source files
     src/sensor.cpp
+    src/mesh.cpp
     src/screen.cpp
     src/main.cpp
     )
