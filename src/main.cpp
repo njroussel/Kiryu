@@ -1,6 +1,8 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <tiny_obj_loader.h>
+#include <ctime>
+
 
 #include <kiryu/vector.h>
 #include <kiryu/sensor.h>
@@ -22,19 +24,19 @@ bool findIntersection(Vector3f *vertices, Ray3f *ray,
     if (a > -KIRYU_EPSILON && a < KIRYU_EPSILON){
         return false;
     }
-    Float l = 1 / a;
+    Float inv_a = 1 / a;
     Vector3f s = ray->origin - vertices[0];
-    u = l * (s.dot(h));
+    u = inv_a * (s.dot(h));
     if (u < 0.0 || u > 1.0) {
         return false;
     }
     Vector3f q = s.cross(edge1);
-    v = l * ray->direction.dot(q);
+    v = inv_a * ray->direction.dot(q);
     if (v < 0.0 || u + v > 1.0) {
         return false;
     }
 
-    Float t = l * edge2.dot(q);
+    Float t = inv_a * (edge2.dot(q));
     if (t > KIRYU_EPSILON) {
         outIntersectionPoint = ray->origin + ray->direction * t;
         return true;
@@ -44,7 +46,7 @@ bool findIntersection(Vector3f *vertices, Ray3f *ray,
 }
 
 int main() {
-    std::string inputfile = "../res/models/triangle.obj";
+    std::string inputfile = "../res/models/bunny.obj";
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -71,14 +73,13 @@ int main() {
     Vector3f position = {0, 0, 0};
     Vector3f target = {1, 0, 0};
     Vector3f up = {0, 0, 1};
-    Float fov = 90;
+    Float fov = 45;
     Sensor sensor(position, target, up, fov, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+    clock_t begin = clock();
     float outputFrame[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
     for (int i = 0; i < WINDOW_WIDTH; i++) {
         for (int j = 0; j < WINDOW_HEIGHT; j++) {
-            std::cout << i * WINDOW_HEIGHT + j << " / " <<
-                WINDOW_WIDTH * WINDOW_HEIGHT << std::endl;
 
             Ray3f ray = sensor.generateRay(i, j, 0.5, 0.5);
 
@@ -129,18 +130,16 @@ int main() {
                     tinyobj::index_t idx = mesh.indices[closestFaceIndex + v];
 
                     if (idx.vertex_index >=0) {
-                        tinyobj::real_t nx = attrib.normals[3*idx.vertex_index+0];
-                        tinyobj::real_t ny = attrib.normals[3*idx.vertex_index+1];
-                        tinyobj::real_t nz = attrib.normals[3*idx.vertex_index+2];
+                        tinyobj::real_t nx = attrib.normals[3*idx.normal_index+0];
+                        tinyobj::real_t ny = attrib.normals[3*idx.normal_index+1];
+                        tinyobj::real_t nz = attrib.normals[3*idx.normal_index+2];
                         normals[v] = {nx, ny, nz};
-                        std::cout << normals[1] << std::endl;
-                        std::cout << "------------" << std::endl;
-
                     }
                 }
 
-                Vector3f color = closestU * normals[1] + closestV * normals[2] +
-                    (1 - closestU - closestV) * normals[0];
+                Vector3f color = closestU * normals[1].cwiseAbs() +
+                    closestV * normals[2].cwiseAbs() +
+                    (1 - closestU - closestV) * normals[0].cwiseAbs();
 
                 for (int k = 0; k < 3; k++) {
                     int index = j * (WINDOW_WIDTH * 3) + i * 3 + k;
@@ -156,6 +155,12 @@ int main() {
             }
         }
     }
+
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    std::cout << std::endl;
+    std::cout << "Rendering time: " << elapsed_secs << std::endl;
 
     Screen *screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
     if (!screen->wasCreated()) {
