@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 2.8.3)
 project(kiryu)
 
+find_package(Threads REQUIRED)
+
+set(CMAKE_CXX_STANDARD 11)
+
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
@@ -36,4 +40,4 @@ target_include_directories(kiryu PRIVATE
     ${TINYOBJLOADER_INCLUDE_DIR}
     )
 
-target_link_libraries(kiryu glfw glad tinyobjloader)
+target_link_libraries(kiryu glfw glad tinyobjloader ${CMAKE_THREAD_LIBS_INIT})
