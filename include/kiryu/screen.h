@@ -23,10 +23,10 @@ class Screen {
         static void destroyWindowOnClose(GLFWwindow *window);
 
         const GLfloat m_verticesAndUv[16] = {
-            -1.0f, -1.0f, 0.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f, 1.0f,
-            1.0f,  -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 1.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 1.0f,
+            -1.0f, 1.0f, 0.0f, 0.0f,
+            1.0f,  -1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f, 0.0f,
         };
 
         const GLchar *m_vShaderText = R"glsl(

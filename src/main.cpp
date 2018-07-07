@@ -24,12 +24,14 @@ bool findIntersection(Vector3f *vertices, Ray3f *ray,
     if (a > -KIRYU_EPSILON && a < KIRYU_EPSILON){
         return false;
     }
+
     Float inv_a = 1 / a;
     Vector3f s = ray->origin - vertices[0];
     u = inv_a * (s.dot(h));
     if (u < 0.0 || u > 1.0) {
         return false;
     }
+
     Vector3f q = s.cross(edge1);
     v = inv_a * ray->direction.dot(q);
     if (v < 0.0 || u + v > 1.0) {
@@ -66,22 +68,18 @@ int main() {
     tinyobj::shape_t shape = shapes[0];
     tinyobj::mesh_t mesh = shape.mesh;
 
-    Mesh myMesh(mesh.indices.size(), mesh.indices.data(),
-            attrib.vertices.data(),attrib.normals.data(),
-            attrib.texcoords.data());
-
     Vector3f position = {0, 0, 0};
     Vector3f target = {1, 0, 0};
     Vector3f up = {0, 0, 1};
-    Float fov = 45;
+    Float fov = 49.1343;
+    fov = 2 * KIRYU_PI * fov / 360;
     Sensor sensor(position, target, up, fov, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     clock_t begin = clock();
     float outputFrame[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
-    for (int i = 0; i < WINDOW_WIDTH; i++) {
-        for (int j = 0; j < WINDOW_HEIGHT; j++) {
-
-            Ray3f ray = sensor.generateRay(i, j, 0.5, 0.5);
+    for (int i = 0; i < WINDOW_HEIGHT; i++) {
+        for (int j = 0; j < WINDOW_WIDTH; j++) {
+            Ray3f ray = sensor.generateRay(j, i, 0.5, 0.5);
 
             bool intersection = false;
             Vector3f intersectionPoint;
@@ -94,6 +92,13 @@ int main() {
             size_t index_offset = 0;
 
             for (size_t f = 0; f < mesh.num_face_vertices.size(); f++) {
+
+                int fv = shape.mesh.num_face_vertices[f];
+                if (fv != 3) {
+                    std::cerr << "Face was not a triangle!" << std::endl;
+                    return EXIT_FAILURE;
+                }
+
                 Vector3f vertices[3];
 
                 for (size_t v = 0; v < 3; v++) {
@@ -107,20 +112,23 @@ int main() {
                     }
                 }
 
-                index_offset += 3;
 
-                intersection |= findIntersection(vertices, &ray,
+                bool tmpIntersection = findIntersection(vertices, &ray,
                         intersectionPoint, u, v);
 
-                if (intersection) {
+                if (tmpIntersection) {
                     Float distance = (intersectionPoint - ray.origin).norm();
                     if (distance < minIntersectionDistance) {
+                        minIntersectionDistance = distance;
                         closestIntersection = intersectionPoint;
                         closestU = u;
                         closestV = v;
-                        closestFaceIndex = index_offset - 3;
+                        closestFaceIndex = index_offset;
                     }
                 }
+
+                index_offset += 3;
+                intersection |= tmpIntersection;
             }
 
             if (intersection) {
@@ -137,19 +145,21 @@ int main() {
                     }
                 }
 
-                Vector3f color = closestU * normals[1].cwiseAbs() +
-                    closestV * normals[2].cwiseAbs() +
-                    (1 - closestU - closestV) * normals[0].cwiseAbs();
+
+                Vector3f color = closestU * normals[1] + 
+                    closestV * normals[2] +
+                    (1 - closestU - closestV) * normals[0];
+                color = color.normalized().cwiseAbs();
 
                 for (int k = 0; k < 3; k++) {
-                    int index = j * (WINDOW_WIDTH * 3) + i * 3 + k;
+                    int index = i * (WINDOW_WIDTH * 3) + j * 3 + k;
                     outputFrame[index] = color[k];
                 }
 
             } else {
                 float value = 0.0f;
                 for (int k = 0; k < 3; k++) {
-                    int index = j * (WINDOW_WIDTH * 3) + i * 3 + k;
+                    int index = i * (WINDOW_WIDTH * 3) + j * 3 + k;
                     outputFrame[index] = value;
                 }
             }
@@ -159,7 +169,6 @@ int main() {
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    std::cout << std::endl;
     std::cout << "Rendering time: " << elapsed_secs << std::endl;
 
     Screen *screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
