@@ -13,44 +13,10 @@
 using Eigen::MatrixXd;
 
 #define WINDOW_WIDTH 720
-#define WINDOW_HEIGHT 480 
+#define WINDOW_HEIGHT 480
 
-bool findIntersection(Vector3f *vertices, Ray3f *ray,
-        Vector3f &outIntersectionPoint, Float &u, Float &v)
-{
-    Vector3f edge1 = vertices[1] - vertices[0];
-    Vector3f edge2 = vertices[2] - vertices[0];
-    Vector3f h = ray->direction.cross(edge2);
-    Float a = edge1.dot(h);
-    if (a > -KIRYU_EPSILON && a < KIRYU_EPSILON){
-        return false;
-    }
-
-    Float inv_a = 1 / a;
-    Vector3f s = ray->origin - vertices[0];
-    u = inv_a * (s.dot(h));
-    if (u < 0.0 || u > 1.0) {
-        return false;
-    }
-
-    Vector3f q = s.cross(edge1);
-    v = inv_a * ray->direction.dot(q);
-    if (v < 0.0 || u + v > 1.0) {
-        return false;
-    }
-
-    Float t = inv_a * (edge2.dot(q));
-    if (t > KIRYU_EPSILON) {
-        outIntersectionPoint = ray->origin + ray->direction * t;
-        return true;
-    }
-
-    return false;
-}
-
-
-bool traceRay(Sensor &sensor,tinyobj::attrib_t &attrib, tinyobj::shape_t &shape,
-        tinyobj::mesh_t &mesh, float *outputFrame, int p) {
+bool traceRay(Sensor &sensor,tinyobj::attrib_t &attrib, Mesh &mesh,
+        float *outputFrame, int p) {
     if (p >= WINDOW_WIDTH * WINDOW_HEIGHT) {
         return true;
     }
@@ -68,24 +34,10 @@ bool traceRay(Sensor &sensor,tinyobj::attrib_t &attrib, tinyobj::shape_t &shape,
     size_t closestFaceIndex;
     Float minIntersectionDistance = std::numeric_limits<float>::infinity();
 
-    size_t index_offset = 0;
-
-    for (size_t f = 0; f < mesh.num_face_vertices.size(); f++) {
+    for (size_t f = 0; f < mesh.getFaceCount(); f++) {
         Vector3f vertices[3];
 
-        for (size_t v = 0; v < 3; v++) {
-            tinyobj::index_t idx = mesh.indices[index_offset + v];
-
-            if (idx.vertex_index >=0) {
-                tinyobj::real_t vx = attrib.vertices[3*idx.vertex_index+0];
-                tinyobj::real_t vy = attrib.vertices[3*idx.vertex_index+1];
-                tinyobj::real_t vz = attrib.vertices[3*idx.vertex_index+2];
-                vertices[v] = {vx, vy, vz};
-            }
-        }
-
-
-        bool tmpIntersection = findIntersection(vertices, &ray,
+        bool tmpIntersection = mesh.findIntersection(ray, f,
                 intersectionPoint, u, v);
 
         if (tmpIntersection) {
@@ -95,34 +47,18 @@ bool traceRay(Sensor &sensor,tinyobj::attrib_t &attrib, tinyobj::shape_t &shape,
                 closestIntersection = intersectionPoint;
                 closestU = u;
                 closestV = v;
-                closestFaceIndex = index_offset;
+                closestFaceIndex = f;
             }
         }
 
-        index_offset += 3;
         intersection |= tmpIntersection;
     }
 
     if (intersection) {
-        Vector3f normals[3];
+        Vector3f normal;
+        mesh.getNormal(normal, closestFaceIndex, closestU, closestV);
 
-        for (size_t v = 0; v < 3; v++) {
-            tinyobj::index_t idx = mesh.indices[closestFaceIndex + v];
-
-            if (idx.vertex_index >=0) {
-                tinyobj::real_t nx = attrib.normals[3*idx.normal_index+0];
-                tinyobj::real_t ny = attrib.normals[3*idx.normal_index+1];
-                tinyobj::real_t nz = attrib.normals[3*idx.normal_index+2];
-                normals[v] = {nx, ny, nz};
-            }
-        }
-
-
-        Vector3f color = closestU * normals[1] + 
-            closestV * normals[2] +
-            (1 - closestU - closestV) * normals[0];
-        color = color.normalized().cwiseAbs();
-
+        Vector3f color = normal.cwiseAbs();
         for (int k = 0; k < 3; k++) {
             int index = i * (WINDOW_WIDTH * 3) + j * 3 + k;
             outputFrame[index] = color[k];
@@ -142,13 +78,13 @@ bool traceRay(Sensor &sensor,tinyobj::attrib_t &attrib, tinyobj::shape_t &shape,
 std::atomic_int pixelIndex(0);
 
 void tracePool(int i, Sensor &sensor,tinyobj::attrib_t &attrib,
-        tinyobj::shape_t &shape, tinyobj::mesh_t &mesh, float *outputFrame) {
+        Mesh &mesh, float *outputFrame) {
     bool finished;
-    int rayCount = 100;
+    int rayCount = 1000;
     while (true) {
         int startingPixelIndex = pixelIndex.exchange(pixelIndex + rayCount);
         for (int i = 0; i < rayCount; i++) {
-            finished = traceRay(sensor, attrib, shape, mesh,
+            finished = traceRay(sensor, attrib, mesh,
                     outputFrame, startingPixelIndex + i); 
 
             if (finished) {
@@ -177,7 +113,10 @@ int main() {
 
     std::cout << "Shapes: " << shapes.size() << std::endl;
     tinyobj::shape_t shape = shapes[0];
-    tinyobj::mesh_t mesh = shape.mesh;
+    tinyobj::mesh_t tinyObjMesh = shape.mesh;
+
+    Mesh mesh(tinyObjMesh.indices, attrib.vertices, attrib.normals, attrib.texcoords,
+            tinyObjMesh);
 
     Vector3f position = {0, 0, 0};
     Vector3f target = {1, 0, 0};
@@ -186,9 +125,9 @@ int main() {
     fov = 2 * KIRYU_PI * fov / 360;
     Sensor sensor(position, target, up, fov, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-
     int threadCount = std::thread::hardware_concurrency();
-    threadCount = 4;
+    //threadCount = 1;
+
     std::vector<std::thread> workers;
     workers.reserve(threadCount);
     std::cout << "Using " << threadCount << " thread(s)!" << std::endl;
@@ -199,7 +138,7 @@ int main() {
     for (int p = 0 ; p < threadCount; p++) { 
         workers.push_back(
                 std::thread(tracePool, p, std::ref(sensor), std::ref(attrib),
-                    std::ref(shape), std::ref(mesh), outputFrame));
+                    std::ref(mesh), outputFrame));
     }
     for (int p = 0 ; p < threadCount; p++)  {
         workers[p].join();
