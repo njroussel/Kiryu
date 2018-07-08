@@ -19,6 +19,8 @@ class Screen {
 
         bool isActive();
 
+        void renderTextureWhileActive(float *pixels);
+
     private:
         static void destroyWindowOnClose(GLFWwindow *window);
 

@@ -154,4 +154,11 @@ bool Screen::isActive() {
     return !glfwWindowShouldClose(m_window);
 }
 
+void Screen::renderTextureWhileActive(float *pixels) {
+    glfwMakeContextCurrent(m_window);
+    while (isActive()) {
+        render();
+        bindTexture(pixels);
+    }
+}
 

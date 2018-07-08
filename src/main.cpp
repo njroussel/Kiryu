@@ -125,14 +125,24 @@ int main() {
     fov = 2 * KIRYU_PI * fov / 360;
     Sensor sensor(position, target, up, fov, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+    float outputFrame[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
+    Screen *screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!screen->wasCreated()) {
+        std::cerr << "Could not create screen!" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    screen->bindTexture(outputFrame);
+
+    glfwMakeContextCurrent(NULL);
+    std::thread renderThread(&Screen::renderTextureWhileActive, screen, outputFrame);
+
     int threadCount = std::thread::hardware_concurrency();
-    //threadCount = 1;
 
     std::vector<std::thread> workers;
     workers.reserve(threadCount);
     std::cout << "Using " << threadCount << " thread(s)!" << std::endl;
 
-    float outputFrame[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
     auto startTime = std::chrono::system_clock::now();
 
     for (int p = 0 ; p < threadCount; p++) { 
@@ -148,18 +158,7 @@ int main() {
     std::chrono::duration<double> elapsed_seconds = endTime - startTime;
     std::cout << "Rendering time: " << elapsed_seconds.count() << std::endl;
 
-    Screen *screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
-    if (!screen->wasCreated()) {
-        std::cerr << "Could not create screen!" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    screen->bindTexture(outputFrame);
-    int counter = 0;
-
-    while (screen->isActive()) {
-        screen->render();
-    }
+    renderThread.join();
 
     delete screen;
 
