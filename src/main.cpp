@@ -80,7 +80,7 @@ std::atomic_int pixelIndex(0);
 void tracePool(int i, Screen &screen, Sensor &sensor,tinyobj::attrib_t &attrib,
         Mesh &mesh, float *outputFrame) {
     bool finished;
-    int rayCount = 100;
+    int rayCount = 1000;
     while (true) {
         int startingPixelIndex = pixelIndex.exchange(pixelIndex + rayCount);
         for (int i = 0; i < rayCount; i++) {
