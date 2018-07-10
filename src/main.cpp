@@ -77,10 +77,10 @@ bool traceRay(Sensor &sensor,tinyobj::attrib_t &attrib, Mesh &mesh,
 
 std::atomic_int pixelIndex(0);
 
-void tracePool(int i, Sensor &sensor,tinyobj::attrib_t &attrib,
+void tracePool(int i, Screen &screen, Sensor &sensor,tinyobj::attrib_t &attrib,
         Mesh &mesh, float *outputFrame) {
     bool finished;
-    int rayCount = 1000;
+    int rayCount = 100;
     while (true) {
         int startingPixelIndex = pixelIndex.exchange(pixelIndex + rayCount);
         for (int i = 0; i < rayCount; i++) {
@@ -91,6 +91,7 @@ void tracePool(int i, Sensor &sensor,tinyobj::attrib_t &attrib,
                 return;
             }
         }
+        screen.texChanged();
     }
 }
 
@@ -126,16 +127,16 @@ int main() {
     Sensor sensor(position, target, up, fov, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     float outputFrame[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
-    Screen *screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
-    if (!screen->wasCreated()) {
+    Screen screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!screen.wasCreated()) {
         std::cerr << "Could not create screen!" << std::endl;
         return EXIT_FAILURE;
     }
 
-    screen->bindTexture(outputFrame);
+    screen.bindTexture(outputFrame);
 
     glfwMakeContextCurrent(NULL);
-    std::thread renderThread(&Screen::renderTextureWhileActive, screen, outputFrame);
+    std::thread renderThread(&Screen::renderTextureWhileActive, &screen);
 
     int threadCount = std::thread::hardware_concurrency();
 
@@ -147,7 +148,7 @@ int main() {
 
     for (int p = 0 ; p < threadCount; p++) { 
         workers.push_back(
-                std::thread(tracePool, p, std::ref(sensor), std::ref(attrib),
+                std::thread(tracePool, p, std::ref(screen), std::ref(sensor), std::ref(attrib),
                     std::ref(mesh), outputFrame));
     }
     for (int p = 0 ; p < threadCount; p++)  {
@@ -159,8 +160,6 @@ int main() {
     std::cout << "Rendering time: " << elapsed_seconds.count() << std::endl;
 
     renderThread.join();
-
-    delete screen;
 
     return EXIT_SUCCESS;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -15,11 +16,13 @@ class Screen {
 
         void bindTexture(float *pixels);
 
+        inline void texChanged() { m_texChanged.store(true); }
+
         void render();
 
         bool isActive();
 
-        void renderTextureWhileActive(float *pixels);
+        void renderTextureWhileActive();
 
     private:
         static void destroyWindowOnClose(GLFWwindow *window);
@@ -55,4 +58,6 @@ class Screen {
         bool m_successInit;
         GLFWwindow *m_window;
         GLuint m_program, m_fShader, m_vShader, m_vBuffer, m_vao, m_texture;
+        std::atomic_bool m_texChanged{false};
+        float *m_textureData;
 };

@@ -3,7 +3,7 @@
 #include <kiryu/screen.h>
 
 Screen::Screen(uint16_t width, uint16_t height):
-    m_width(width), m_height(height)
+    m_width(width), m_height(height), m_textureData(nullptr)
 {
     m_successInit = true;
 
@@ -113,6 +113,7 @@ void Screen::destroyWindowOnClose(GLFWwindow *window) {
 }
 
 void Screen::bindTexture(float *pixels) {
+    m_textureData = pixels;
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height,
@@ -154,11 +155,13 @@ bool Screen::isActive() {
     return !glfwWindowShouldClose(m_window);
 }
 
-void Screen::renderTextureWhileActive(float *pixels) {
+void Screen::renderTextureWhileActive() {
     glfwMakeContextCurrent(m_window);
+
     while (isActive()) {
         render();
-        bindTexture(pixels);
+        if (m_texChanged.exchange(false)) {
+            bindTexture(m_textureData);
+        }
     }
 }
-
