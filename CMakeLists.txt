@@ -18,11 +18,18 @@ add_executable(kiryu
     include/kiryu/ray.h
     include/kiryu/sensor.h
     include/kiryu/mesh.h
+    include/kiryu/scene.h
+    include/kiryu/qbvh.h
+    include/kiryu/bruteAccel.h
+    include/kiryu/integrator.h
     include/kiryu/screen.h
 
     # Source files
     src/sensor.cpp
     src/mesh.cpp
+    src/scene.cpp
+    src/qbvh.cpp
+    src/bruteAccel.cpp
     src/screen.cpp
     src/main.cpp
     )

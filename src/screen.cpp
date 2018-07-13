@@ -160,6 +160,7 @@ void Screen::renderTextureWhileActive() {
 
     while (isActive()) {
         render();
+
         if (m_texChanged.exchange(false)) {
             bindTexture(m_textureData);
         }

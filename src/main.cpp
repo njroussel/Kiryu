@@ -8,6 +8,7 @@
 #include <kiryu/vector.h>
 #include <kiryu/sensor.h>
 #include <kiryu/mesh.h>
+#include <kiryu/scene.h>
 #include <kiryu/screen.h>
 
 using Eigen::MatrixXd;
@@ -118,6 +119,9 @@ int main() {
 
     Mesh mesh(tinyObjMesh.indices, attrib.vertices, attrib.normals, attrib.texcoords,
             tinyObjMesh);
+
+    Scene scene;
+    scene.addMesh(mesh);
 
     Vector3f position = {0, 0, 0};
     Vector3f target = {1, 0, 0};
