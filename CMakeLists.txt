@@ -21,7 +21,6 @@ add_executable(kiryu
     include/kiryu/mesh.h
     include/kiryu/scene.h
     include/kiryu/accel.h
-    include/kiryu/qbvh.h
     include/kiryu/bruteAccel.h
     include/kiryu/integrator.h
     include/kiryu/normalIntegrator.h
@@ -32,7 +31,6 @@ add_executable(kiryu
     src/mesh.cpp
     src/scene.cpp
     src/accel.cpp
-    src/qbvh.cpp
     src/bruteAccel.cpp
     src/integrator.cpp
     src/normalIntegrator.cpp
