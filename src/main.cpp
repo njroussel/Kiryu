@@ -9,6 +9,8 @@
 #include <kiryu/sensor.h>
 #include <kiryu/mesh.h>
 #include <kiryu/scene.h>
+#include <kiryu/bruteAccel.h>
+#include <kiryu/normalIntegrator.h>
 #include <kiryu/screen.h>
 
 using Eigen::MatrixXd;
@@ -16,80 +18,28 @@ using Eigen::MatrixXd;
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 480
 
-bool traceRay(Sensor &sensor,tinyobj::attrib_t &attrib, Mesh &mesh,
-        float *outputFrame, int p) {
-    if (p >= WINDOW_WIDTH * WINDOW_HEIGHT) {
-        return true;
-    }
-
-    int j = p % WINDOW_WIDTH;
-    int i = p /  WINDOW_WIDTH;
-
-    Ray3f ray = sensor.generateRay(j, i, 0.5, 0.5);
-
-    bool intersection = false;
-    Vector3f intersectionPoint;
-    Vector3f closestIntersection;
-    Float u, v;
-    Float closestU, closestV;
-    size_t closestFaceIndex;
-    Float minIntersectionDistance = std::numeric_limits<float>::infinity();
-
-    for (size_t f = 0; f < mesh.getFaceCount(); f++) {
-        Vector3f vertices[3];
-
-        bool tmpIntersection = mesh.findIntersection(ray, f,
-                intersectionPoint, u, v);
-
-        if (tmpIntersection) {
-            Float distance = (intersectionPoint - ray.origin).norm();
-            if (distance < minIntersectionDistance) {
-                minIntersectionDistance = distance;
-                closestIntersection = intersectionPoint;
-                closestU = u;
-                closestV = v;
-                closestFaceIndex = f;
-            }
-        }
-
-        intersection |= tmpIntersection;
-    }
-
-    if (intersection) {
-        Vector3f normal;
-        mesh.getNormal(normal, closestFaceIndex, closestU, closestV);
-
-        Vector3f color = normal.cwiseAbs();
-        for (int k = 0; k < 3; k++) {
-            int index = i * (WINDOW_WIDTH * 3) + j * 3 + k;
-            outputFrame[index] = color[k];
-        }
-
-    } else {
-        float value = 0.0f;
-        for (int k = 0; k < 3; k++) {
-            int index = i * (WINDOW_WIDTH * 3) + j * 3 + k;
-            outputFrame[index] = value;
-        }
-    }
-
-    return false;
-}
-
 std::atomic_int pixelIndex(0);
 
-void tracePool(int i, Screen &screen, Sensor &sensor,tinyobj::attrib_t &attrib,
-        Mesh &mesh, float *outputFrame) {
+void tracePool(int i, Screen &screen, Sensor &sensor, Integrator &integrator,
+        float *outputFrame) {
     bool finished;
     int rayCount = 1000;
     while (true) {
         int startingPixelIndex = pixelIndex.exchange(pixelIndex + rayCount);
         for (int i = 0; i < rayCount; i++) {
-            finished = traceRay(sensor, attrib, mesh,
-                    outputFrame, startingPixelIndex + i); 
-
-            if (finished) {
+            if ((startingPixelIndex + i) >= WINDOW_WIDTH * WINDOW_HEIGHT) {
                 return;
+            }
+
+            int px = (startingPixelIndex + i) % WINDOW_WIDTH;
+            int py = (startingPixelIndex + i) /  WINDOW_WIDTH;
+
+            Ray3f ray = sensor.generateRay(px, py, 0.5, 0.5);
+            Color3f color = integrator.Li(ray);
+
+            for (int k = 0; k < 3; k++) {
+                int index = py * (WINDOW_WIDTH * 3) + px * 3 + k;
+                outputFrame[index] = color[k];
             }
         }
         screen.texChanged();
@@ -123,6 +73,9 @@ int main() {
     Scene scene;
     scene.addMesh(mesh);
 
+    BruteAccel accel(scene);
+    NormalIntegrator integrator(accel);
+
     Vector3f position = {0, 0, 0};
     Vector3f target = {1, 0, 0};
     Vector3f up = {0, 0, 1};
@@ -152,8 +105,8 @@ int main() {
 
     for (int p = 0 ; p < threadCount; p++) { 
         workers.push_back(
-                std::thread(tracePool, p, std::ref(screen), std::ref(sensor), std::ref(attrib),
-                    std::ref(mesh), outputFrame));
+                std::thread(tracePool, p, std::ref(screen), std::ref(sensor),
+                    std::ref(integrator), outputFrame));
     }
     for (int p = 0 ; p < threadCount; p++)  {
         workers[p].join();

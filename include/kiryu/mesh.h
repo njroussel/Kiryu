@@ -15,7 +15,7 @@ class Mesh {
 
         void getNormal(Vector3f &normal, size_t faceIndex, float u, float v);
 
-        bool findIntersection(Ray3f &ray, size_t faceIndex,
+        bool intersectRay(Ray3f &ray, size_t faceIndex,
                 Vector3f &outIntersectionPoint, Float &u, Float &v);
     private:
         size_t m_faceCount;

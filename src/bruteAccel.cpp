@@ -1,40 +1,35 @@
 #include <kiryu/bruteAccel.h>
 
-BruteAccel::BruteAccel(Scene &scene) : m_scene(scene) { }
+BruteAccel::BruteAccel(Scene &scene) : Accel(scene) { }
 
-void BruteAccel::intersectScene(Ray3f &ray, bool &intersection,
-        Vector3f &intersectionPoint) {
-    intersection = false;
+void BruteAccel::intersectScene(Ray3f &ray, Intersection &its) {
+    its.intersection = false;
 
-    Float closestU, closestV;
-    size_t closestFaceIndex;
-
-    Vector3f tmpItsPoint;
+    Vector3f itsPoint;
     Float minIntersectionDistance = std::numeric_limits<float>::infinity();
-    Float tmpU, tmpV;
+    Float u, v;
 
     std::vector<std::reference_wrapper<Mesh>> meshes = m_scene.getMeshes();
     for (size_t i = 0; i < meshes.size(); i++) {
         Mesh &mesh = meshes[i];
 
         for (size_t f = 0; f < mesh.getFaceCount(); f++) {
-            Vector3f vertices[3];
+            bool intersection = mesh.intersectRay(ray, f,
+                    itsPoint, u, v);
 
-            bool tmpIntersection = mesh.findIntersection(ray, f,
-                    intersectionPoint, tmpU, tmpV);
+            if (intersection) {
+                its.intersection = true;
+                Float distance = (itsPoint - ray.origin).norm();
 
-            if (tmpIntersection) {
-                Float distance = (intersectionPoint - ray.origin).norm();
                 if (distance < minIntersectionDistance) {
                     minIntersectionDistance = distance;
-                    intersectionPoint = tmpItsPoint;
-                    closestU = tmpU;
-                    closestV = tmpV;
-                    closestFaceIndex = f;
+                    its.p = itsPoint;
+                    its.u = u;
+                    its.v = v;
+                    its.mesh = &mesh;
+                    its.faceIndex = f;
                 }
             }
-
-            intersection |= tmpIntersection;
         }
     }
 }

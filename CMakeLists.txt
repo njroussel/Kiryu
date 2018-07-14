@@ -16,20 +16,26 @@ add_executable(kiryu
     include/kiryu/common.h
     include/kiryu/vector.h
     include/kiryu/ray.h
+
     include/kiryu/sensor.h
     include/kiryu/mesh.h
     include/kiryu/scene.h
+    include/kiryu/accel.h
     include/kiryu/qbvh.h
     include/kiryu/bruteAccel.h
     include/kiryu/integrator.h
+    include/kiryu/normalIntegrator.h
     include/kiryu/screen.h
 
     # Source files
     src/sensor.cpp
     src/mesh.cpp
     src/scene.cpp
+    src/accel.cpp
     src/qbvh.cpp
     src/bruteAccel.cpp
+    src/integrator.cpp
+    src/normalIntegrator.cpp
     src/screen.cpp
     src/main.cpp
     )

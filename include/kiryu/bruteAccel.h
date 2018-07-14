@@ -1,14 +1,10 @@
 #pragma once
 
-#include <kiryu/scene.h>
+#include <kiryu/accel.h>
 
-class BruteAccel {
+class BruteAccel : public Accel {
     public:
         BruteAccel(Scene &scene);
 
-        void intersectScene(Ray3f &ray, bool &intersection,
-                Vector3f &intersectionPoint);
-
-    private:
-        Scene &m_scene;
+        void intersectScene(Ray3f &ray, Intersection &its);
 };

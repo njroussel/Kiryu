@@ -1,6 +1,6 @@
 #pragma once
 
-#include<kiryu/mesh.h>
+#include <kiryu/mesh.h>
 
 class Scene {
     public:
@@ -14,5 +14,4 @@ class Scene {
 
     private:
         std::vector<std::reference_wrapper<Mesh>> m_meshes;
-
 };

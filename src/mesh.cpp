@@ -31,7 +31,7 @@ void Mesh::getNormal(Vector3f &normal, size_t faceIndex, float u, float v) {
     normal = ((1 - u - v) * n0 + u * n1 + v * n2).normalized();
 }
 
-bool Mesh::findIntersection(Ray3f &ray, size_t faceIndex,
+bool Mesh::intersectRay(Ray3f &ray, size_t faceIndex,
         Vector3f &outIntersectionPoint, Float &u, Float &v)
 {
     int v0Index = m_indices[faceIndex * 3 + 0].vertex_index * 3;
