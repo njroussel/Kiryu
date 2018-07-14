@@ -4,7 +4,7 @@
 
 class BruteAccel : public Accel {
     public:
-        BruteAccel(Scene &scene);
+        BruteAccel(const Scene &scene);
 
-        void intersectScene(Ray3f &ray, Intersection &its);
+        void intersectScene(const Ray3f &ray, Intersection &its) const;
 };

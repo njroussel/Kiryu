@@ -6,10 +6,10 @@
 
 class Integrator {
     public:
-        Integrator(Accel &accel);
+        Integrator(const Accel &accel);
 
-        virtual Color3f Li(Ray3f &ray) = 0;
+        virtual Color3f Li(const Ray3f &ray) const = 0;
 
     protected:
-        Accel &m_accel;
+        const Accel &m_accel;
 };

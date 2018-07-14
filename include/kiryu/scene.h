@@ -6,12 +6,12 @@ class Scene {
     public:
         Scene();
 
-        void addMesh(Mesh &mesh);
+        void addMesh(const Mesh &mesh);
 
-        inline std::vector<std::reference_wrapper<Mesh>> getMeshes() {
+        inline std::vector<std::reference_wrapper<const Mesh>> getMeshes() const {
             return m_meshes;
         }
 
     private:
-        std::vector<std::reference_wrapper<Mesh>> m_meshes;
+        std::vector<std::reference_wrapper<const Mesh>> m_meshes;
 };

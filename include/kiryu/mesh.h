@@ -7,20 +7,23 @@
 
 class Mesh {
     public:
-        Mesh(std::vector<tinyobj::index_t> &indices,
-                std::vector<Float> &vertices, std::vector<Float> &normals,
-                std::vector<Float> &texCoords, tinyobj::mesh_t &mesh);
+        Mesh(const std::vector<tinyobj::index_t> &indices,
+                const std::vector<Float> &vertices,
+                const std::vector<Float> &normals,
+                const std::vector<Float> &texCoords,
+                const tinyobj::mesh_t &mesh);
 
-        inline int getFaceCount() { return m_faceCount; }
+        inline int getFaceCount() const { return m_faceCount; }
 
-        void getNormal(Vector3f &normal, size_t faceIndex, float u, float v);
+        void getNormal(const size_t faceIndex,
+                const float u, const float v, Vector3f &normal) const;
 
-        bool intersectRay(Ray3f &ray, size_t faceIndex,
-                Vector3f &outIntersectionPoint, Float &u, Float &v);
+        bool intersectRay(const Ray3f &ray, const size_t faceIndex,
+                Vector3f &outIntersectionPoint, Float &u, Float &v) const;
     private:
-        size_t m_faceCount;
-        std::vector<tinyobj::index_t> &m_indices;
-        std::vector<Float> &m_vertices;
-        std::vector<Float> &m_normals;
-        std::vector<Float> &m_texCoords;
+        const size_t m_faceCount;
+        const std::vector<tinyobj::index_t> &m_indices;
+        const std::vector<Float> &m_vertices;
+        const std::vector<Float> &m_normals;
+        const std::vector<Float> &m_texCoords;
 };

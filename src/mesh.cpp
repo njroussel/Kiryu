@@ -4,9 +4,11 @@
 #include <kiryu/mesh.h>
 #include <kiryu/vector.h>
 
-Mesh::Mesh(std::vector<tinyobj::index_t> &indices,
-        std::vector<Float> &vertices, std::vector<Float> &normals,
-        std::vector<Float> &texCoords, tinyobj::mesh_t &mesh) :
+Mesh::Mesh(const std::vector<tinyobj::index_t> &indices,
+        const std::vector<Float> &vertices,
+        const std::vector<Float> &normals,
+        const std::vector<Float> &texCoords,
+        const tinyobj::mesh_t &mesh) :
     m_faceCount(mesh.num_face_vertices.size()), m_indices(indices),
     m_vertices(vertices), m_normals(normals), m_texCoords(texCoords)
 {
@@ -18,30 +20,32 @@ Mesh::Mesh(std::vector<tinyobj::index_t> &indices,
     }
 }
 
-void Mesh::getNormal(Vector3f &normal, size_t faceIndex, float u, float v) {
+void Mesh::getNormal(const size_t faceIndex,
+        const float u, const float v, Vector3f &normal) const
+{
     int n0Index = m_indices[faceIndex * 3 + 0].normal_index * 3;
     int n1Index = m_indices[faceIndex * 3 + 1].normal_index * 3;
     int n2Index = m_indices[faceIndex * 3 + 2].normal_index * 3;
 
-    float *normalsData = m_normals.data();
-    Eigen::Map<Vector3f> n0(normalsData + n0Index);
-    Eigen::Map<Vector3f> n1(normalsData + n1Index);
-    Eigen::Map<Vector3f> n2(normalsData + n2Index);
+    const float *normalsData = m_normals.data();
+    Eigen::Map<const Vector3f> n0(normalsData + n0Index);
+    Eigen::Map<const Vector3f> n1(normalsData + n1Index);
+    Eigen::Map<const Vector3f> n2(normalsData + n2Index);
 
     normal = ((1 - u - v) * n0 + u * n1 + v * n2).normalized();
 }
 
-bool Mesh::intersectRay(Ray3f &ray, size_t faceIndex,
-        Vector3f &outIntersectionPoint, Float &u, Float &v)
+bool Mesh::intersectRay(const Ray3f &ray, const size_t faceIndex,
+        Vector3f &outIntersectionPoint, Float &u, Float &v) const
 {
     int v0Index = m_indices[faceIndex * 3 + 0].vertex_index * 3;
     int v1Index = m_indices[faceIndex * 3 + 1].vertex_index * 3;
     int v2Index = m_indices[faceIndex * 3 + 2].vertex_index * 3;
 
-    float *verticesData = m_vertices.data();
-    Eigen::Map<Vector3f> v0(verticesData + v0Index);
-    Eigen::Map<Vector3f> v1(verticesData + v1Index);
-    Eigen::Map<Vector3f> v2(verticesData + v2Index);
+    const float *verticesData = m_vertices.data();
+    Eigen::Map<const Vector3f> v0(verticesData + v0Index);
+    Eigen::Map<const Vector3f> v1(verticesData + v1Index);
+    Eigen::Map<const Vector3f> v2(verticesData + v2Index);
 
     Vector3f edge1 = v1 - v0;
     Vector3f edge2 = v2 - v0;

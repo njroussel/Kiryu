@@ -1,3 +1,3 @@
 #include <kiryu/integrator.h>
 
-Integrator::Integrator(Accel &accel) : m_accel(accel) { }
+Integrator::Integrator(const Accel &accel) : m_accel(accel) { }

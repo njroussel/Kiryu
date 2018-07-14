@@ -4,7 +4,7 @@
 
 struct Intersection {
     bool intersection = false;
-    Mesh *mesh;
+    const Mesh *mesh;
     size_t faceIndex;
     Vector3f p;
     Float u;
@@ -13,12 +13,12 @@ struct Intersection {
 
 class Accel {
     public:
-        Accel(Scene &scene);
+        Accel(const Scene &scene);
 
-        Scene& getScene() { return m_scene; }
+        const Scene& getScene() const { return m_scene; }
 
-        virtual void intersectScene(Ray3f &ray, Intersection &its) = 0;
+        virtual void intersectScene(const Ray3f &ray, Intersection &its) const = 0;
 
     protected:
-        Scene &m_scene;
+        const Scene &m_scene;
 };

@@ -1,3 +1,3 @@
 #include <kiryu/accel.h>
 
-Accel::Accel(Scene &scene) : m_scene(scene) { }
+Accel::Accel(const Scene &scene) : m_scene(scene) { }

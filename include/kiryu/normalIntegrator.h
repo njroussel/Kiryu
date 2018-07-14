@@ -4,7 +4,7 @@
 
 class NormalIntegrator : public Integrator {
     public:
-        NormalIntegrator(Accel &accel);
+        NormalIntegrator(const Accel &accel);
 
-        Color3f Li(Ray3f &ray) override;
+        Color3f Li(const Ray3f &ray) const override;
 };
