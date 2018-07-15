@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include <kiryu/mesh.h>
-#include <kiryu/vector.h>
 
 Mesh::Mesh(const std::vector<tinyobj::index_t> &indices,
         const std::vector<Float> &vertices,

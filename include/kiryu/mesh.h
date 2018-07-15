@@ -2,8 +2,7 @@
 
 #include <tiny_obj_loader.h>
 
-#include <kiryu/ray.h>
-#include <kiryu/common.h>
+#include <kiryu/vector.h>
 
 class Mesh {
     public:

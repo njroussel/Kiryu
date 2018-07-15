@@ -1,7 +1,6 @@
 #pragma once
 
 #include <kiryu/vector.h>
-#include <kiryu/ray.h>
 #include <kiryu/accel.h>
 
 class Integrator {

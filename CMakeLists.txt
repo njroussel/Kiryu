@@ -15,13 +15,13 @@ add_executable(kiryu
     # Header files
     include/kiryu/common.h
     include/kiryu/vector.h
-    include/kiryu/ray.h
 
     include/kiryu/sensor.h
     include/kiryu/mesh.h
     include/kiryu/scene.h
     include/kiryu/accel.h
     include/kiryu/bruteAccel.h
+    include/kiryu/kdtree.h
     include/kiryu/integrator.h
     include/kiryu/normalIntegrator.h
     include/kiryu/screen.h
@@ -32,6 +32,7 @@ add_executable(kiryu
     src/scene.cpp
     src/accel.cpp
     src/bruteAccel.cpp
+    src/kdtree.cpp
     src/integrator.cpp
     src/normalIntegrator.cpp
     src/screen.cpp

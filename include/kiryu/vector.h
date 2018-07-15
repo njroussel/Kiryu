@@ -16,3 +16,7 @@ typedef Eigen::Matrix<Float, 4, 1> Vector4f;
 
 typedef Eigen::Matrix<Float, 3, 1> Color3f;
 
+struct Ray3f {
+    Vector3f origin;
+    Vector3f direction;
+};
