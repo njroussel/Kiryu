@@ -1,4 +1,5 @@
 #include <Eigen/Geometry>
+#include <iostream>
 
 #include <kiryu/sensor.h>
 
@@ -13,12 +14,15 @@ Sensor::Sensor(Vector3f position, Vector3f target, Vector3f up, Float fov,
 Ray3f Sensor::generateRay(uint16_t xPixel, uint16_t yPixel, Float xSample,
         Float ySample)
 {
-    float worldPixelSize = 1e-9 * std::atan(m_fov / 2.0f)  * 2.0f / m_width;
+    Float sensorEpsilon = 1e-4;
+
+    Float worldPixelSize = sensorEpsilon * std::atan(m_fov / 2.0f)  * 2.0f / m_width;
 
     Vector3f nearPlaneHorizon = m_target.cross(m_up);
+
     Vector3f worldTopLeftNearPlane =
         m_position +
-        m_target * 1e-9 +
+        m_target * sensorEpsilon +
         nearPlaneHorizon * worldPixelSize * -m_width / 2.0f +
         m_up * worldPixelSize * m_height / 2.0f;
 

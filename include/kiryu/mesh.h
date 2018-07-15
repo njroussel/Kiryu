@@ -16,7 +16,7 @@ class Mesh {
         inline int getFaceCount() const { return m_faceCount; }
 
         void getNormal(const size_t faceIndex,
-                const float u, const float v, Vector3f &normal) const;
+                const Float u, const Float v, Vector3f &normal) const;
 
         bool intersectRay(const Ray3f &ray, const size_t faceIndex,
                 Vector3f &outIntersectionPoint, Float &u, Float &v) const;

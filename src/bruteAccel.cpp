@@ -6,7 +6,7 @@ void BruteAccel::intersectScene(const Ray3f &ray, Intersection &its) const {
     its.intersection = false;
 
     Vector3f itsPoint;
-    Float minIntersectionDistance = std::numeric_limits<float>::infinity();
+    Float minIntersectionDistance = std::numeric_limits<Float>::infinity();
     Float u, v;
 
     std::vector<std::reference_wrapper<const Mesh>> meshes = m_scene.getMeshes();

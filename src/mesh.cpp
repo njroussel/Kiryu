@@ -21,13 +21,13 @@ Mesh::Mesh(const std::vector<tinyobj::index_t> &indices,
 }
 
 void Mesh::getNormal(const size_t faceIndex,
-        const float u, const float v, Vector3f &normal) const
+        const Float u, const Float v, Vector3f &normal) const
 {
     int n0Index = m_indices[faceIndex * 3 + 0].normal_index * 3;
     int n1Index = m_indices[faceIndex * 3 + 1].normal_index * 3;
     int n2Index = m_indices[faceIndex * 3 + 2].normal_index * 3;
 
-    const float *normalsData = m_normals.data();
+    const Float *normalsData = m_normals.data();
     Eigen::Map<const Vector3f> n0(normalsData + n0Index);
     Eigen::Map<const Vector3f> n1(normalsData + n1Index);
     Eigen::Map<const Vector3f> n2(normalsData + n2Index);
@@ -42,7 +42,7 @@ bool Mesh::intersectRay(const Ray3f &ray, const size_t faceIndex,
     int v1Index = m_indices[faceIndex * 3 + 1].vertex_index * 3;
     int v2Index = m_indices[faceIndex * 3 + 2].vertex_index * 3;
 
-    const float *verticesData = m_vertices.data();
+    const Float *verticesData = m_vertices.data();
     Eigen::Map<const Vector3f> v0(verticesData + v0Index);
     Eigen::Map<const Vector3f> v1(verticesData + v1Index);
     Eigen::Map<const Vector3f> v2(verticesData + v2Index);
