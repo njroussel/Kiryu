@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <tiny_obj_loader.h>
 
+#include <kiryu/aabb.h>
 #include <kiryu/vector.h>
 #include <kiryu/sensor.h>
 #include <kiryu/mesh.h>
@@ -17,10 +18,11 @@ using Eigen::MatrixXd;
 
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 480
+#define KIRYU_GUI_ENABLE false
 
 std::atomic_int pixelIndex(0);
 
-void tracePool(int i, Screen &screen, Sensor &sensor, Integrator &integrator,
+void tracePool(int i, void *screen, Sensor &sensor, Integrator &integrator,
         float *outputFrame) {
     bool finished;
     int rayCount = 1000;
@@ -43,7 +45,10 @@ void tracePool(int i, Screen &screen, Sensor &sensor, Integrator &integrator,
                 outputFrame[index] = color[k];
             }
         }
-        screen.texChanged();
+
+        if (KIRYU_GUI_ENABLE) {
+            static_cast<Screen *>(screen)->texChanged();
+        }
     }
 }
 
@@ -105,16 +110,24 @@ int main() {
         }
     }
 
-    Screen screen(WINDOW_WIDTH, WINDOW_HEIGHT);
-    if (!screen.wasCreated()) {
-        std::cerr << "Could not create screen!" << std::endl;
-        return EXIT_FAILURE;
+    void *screenPtr = nullptr;
+    std::thread *renderThreadPtr = nullptr;
+
+    if (KIRYU_GUI_ENABLE) {
+        Screen screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+        screenPtr = &screenPtr;
+
+        if (!screen.wasCreated()) {
+            std::cerr << "Could not create screen!" << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        screen.bindTexture(outputFrame);
+
+        glfwMakeContextCurrent(NULL);
+        std::thread renderThread(&Screen::renderTextureWhileActive, &screen);
+        renderThreadPtr = &renderThread;
     }
-
-    screen.bindTexture(outputFrame);
-
-    glfwMakeContextCurrent(NULL);
-    std::thread renderThread(&Screen::renderTextureWhileActive, &screen);
 
     int threadCount = std::thread::hardware_concurrency();
 
@@ -126,7 +139,7 @@ int main() {
 
     for (int p = 0 ; p < threadCount; p++) { 
         workers.push_back(
-                std::thread(tracePool, p, std::ref(screen), std::ref(sensor),
+                std::thread(tracePool, p, screenPtr, std::ref(sensor),
                     std::ref(integrator), outputFrame));
     }
     for (int p = 0 ; p < threadCount; p++)  {
@@ -137,7 +150,9 @@ int main() {
     std::chrono::duration<double> elapsed_seconds = endTime - startTime;
     std::cout << "Rendering time: " << elapsed_seconds.count() << std::endl;
 
-    renderThread.join();
+    if (KIRYU_GUI_ENABLE) {
+        renderThreadPtr->join();
+    }
 
     return EXIT_SUCCESS;
 }

@@ -27,9 +27,9 @@ void Mesh::getNormal(const size_t faceIndex,
     int n2Index = m_indices[faceIndex * 3 + 2].normal_index * 3;
 
     const Float *normalsData = m_normals.data();
-    Eigen::Map<const Vector3f> n0(normalsData + n0Index);
-    Eigen::Map<const Vector3f> n1(normalsData + n1Index);
-    Eigen::Map<const Vector3f> n2(normalsData + n2Index);
+    const Vector3f n0(normalsData + n0Index);
+    const Vector3f n1(normalsData + n1Index);
+    const Vector3f n2(normalsData + n2Index);
 
     normal = ((1 - u - v) * n0 + u * n1 + v * n2).normalized();
 }
@@ -42,9 +42,9 @@ bool Mesh::intersectRay(const Ray3f &ray, const size_t faceIndex,
     int v2Index = m_indices[faceIndex * 3 + 2].vertex_index * 3;
 
     const Float *verticesData = m_vertices.data();
-    Eigen::Map<const Vector3f> v0(verticesData + v0Index);
-    Eigen::Map<const Vector3f> v1(verticesData + v1Index);
-    Eigen::Map<const Vector3f> v2(verticesData + v2Index);
+    const Vector3f v0(verticesData + v0Index);
+    const Vector3f v1(verticesData + v1Index);
+    const Vector3f v2(verticesData + v2Index);
 
     Vector3f edge1 = v1 - v0;
     Vector3f edge2 = v2 - v0;

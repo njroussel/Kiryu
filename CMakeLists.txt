@@ -15,6 +15,7 @@ add_executable(kiryu
     # Header files
     include/kiryu/common.h
     include/kiryu/vector.h
+    include/kiryu/aabb.h
 
     include/kiryu/sensor.h
     include/kiryu/mesh.h

@@ -4,17 +4,44 @@
 
 #include <kiryu/common.h>
 
-typedef Eigen::Matrix<uint16_t, 2, 1> Vector2h;
-typedef Eigen::Matrix<uint16_t, 3, 1> Vector3h;
+template <typename _ScalarType, int _Dimension> struct VectorType :
+    public Eigen::Matrix<_ScalarType, _Dimension, 1>
+{
+    enum {
+        Dimension = _Dimension
+    };
 
-typedef Eigen::Matrix<int32_t, 2, 1> Vector2i;
-typedef Eigen::Matrix<int32_t, 3, 1> Vector3i;
+    typedef _ScalarType ScalarType;
+    typedef Eigen::Matrix<ScalarType, Dimension, 1> EigenVec;
 
-typedef Eigen::Matrix<Float, 2, 1> Vector2f;
-typedef Eigen::Matrix<Float, 3, 1> Vector3f;
-typedef Eigen::Matrix<Float, 4, 1> Vector4f;
+    VectorType(ScalarType x = (ScalarType) 0) { EigenVec::setConstant(x); }
 
-typedef Eigen::Matrix<Float, 3, 1> Color3f;
+    VectorType(ScalarType x, ScalarType y) : EigenVec(x, y) { }
+
+    VectorType(ScalarType x, ScalarType y, ScalarType z) :
+        EigenVec(x, y, z) {
+        }
+
+    VectorType(ScalarType x, ScalarType y, ScalarType z, ScalarType w) :
+        EigenVec(x, y, z, w) { }
+
+    template <typename Derived> VectorType(const Eigen::MatrixBase<Derived>& p)
+        : EigenVec(p) { }
+
+
+    template <typename Derived> VectorType &operator=(
+            const Eigen::MatrixBase<Derived>& p)
+    {
+        this->EigenVec::operator=(p);
+        return *this;
+    }
+
+    template <typename Derived> VectorType(const Derived *dataPtr)
+        : EigenVec(dataPtr) { }
+};
+
+typedef VectorType<Float, 3> Vector3f;
+typedef VectorType<Float, 3> Color3f;
 
 struct Ray3f {
     Vector3f origin;

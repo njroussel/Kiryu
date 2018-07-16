@@ -6,9 +6,9 @@
 
 /**
  * NOTE: This class was written after reading through pbrt-v3's implementation
- * of kd-trees. Even though this was written from scratch, it most likely still
- * is very similar to their implementation. Therefore their copyright notice
- * might still apply here, here it is:
+ * of kd-trees. Even though this was written from scratch, it might still
+ * be very similar to their implementation. Therefore their copyright notice
+ * most likely still applies here, here it is:
  *
  *    pbrt source code is Copyright(c) 1998-2016
  *                       Matt Pharr, Greg Humphreys, and Wenzel Jakob.
