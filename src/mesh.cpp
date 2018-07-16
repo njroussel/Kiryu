@@ -4,7 +4,7 @@
 #include <kiryu/mesh.h>
 
 Mesh::Mesh(const std::vector<tinyobj::index_t> &indices,
-        const std::vector<Float> &vertices,
+        std::vector<Float> &vertices,
         const std::vector<Float> &normals,
         const std::vector<Float> &texCoords,
         const tinyobj::mesh_t &mesh) :
@@ -27,9 +27,10 @@ void Mesh::getNormal(const size_t faceIndex,
     int n2Index = m_indices[faceIndex * 3 + 2].normal_index * 3;
 
     const Float *normalsData = m_normals.data();
-    const Vector3f n0(normalsData + n0Index);
-    const Vector3f n1(normalsData + n1Index);
-    const Vector3f n2(normalsData + n2Index);
+
+    Vector3f n0(normalsData + n0Index);
+    Vector3f n1(normalsData + n1Index);
+    Vector3f n2(normalsData + n2Index);
 
     normal = ((1 - u - v) * n0 + u * n1 + v * n2).normalized();
 }
@@ -41,8 +42,26 @@ bool Mesh::intersectRay(const Ray3f &ray, const size_t faceIndex,
     int v1Index = m_indices[faceIndex * 3 + 1].vertex_index * 3;
     int v2Index = m_indices[faceIndex * 3 + 2].vertex_index * 3;
 
-    const Float *verticesData = m_vertices.data();
+    Float *verticesData = m_vertices.data();
+    Float startValue = verticesData[v0Index];
+
+
+    std::cout << verticesData[v0Index] << std::endl;
+    std::cout << std::endl;
     const Vector3f v0(verticesData + v0Index);
+    std::cout << v0<< std::endl;
+    std::cout << std::endl;
+
+    verticesData[v0Index] = 0;
+    std::cout << verticesData[v0Index] << std::endl;
+    std::cout << std::endl;
+
+    std::cout << v0 << std::endl;
+    std::cout << std::endl;
+    std::cout << "---------" << std::endl;
+
+    verticesData[v0Index] = startValue;
+
     const Vector3f v1(verticesData + v1Index);
     const Vector3f v2(verticesData + v2Index);
 

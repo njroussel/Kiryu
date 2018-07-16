@@ -4,14 +4,14 @@
 
 #include <kiryu/common.h>
 
-template <typename _ScalarType, int _Dimension> struct VectorType :
-    public Eigen::Matrix<_ScalarType, _Dimension, 1>
+template <typename ScalarType_, int Dimension_> struct VectorType :
+    public Eigen::Matrix<ScalarType_, Dimension_, 1>
 {
     enum {
-        Dimension = _Dimension
+        Dimension = Dimension_
     };
 
-    typedef _ScalarType ScalarType;
+    typedef ScalarType_ ScalarType;
     typedef Eigen::Matrix<ScalarType, Dimension, 1> EigenVec;
 
     VectorType(ScalarType x = (ScalarType) 0) { EigenVec::setConstant(x); }
@@ -25,19 +25,16 @@ template <typename _ScalarType, int _Dimension> struct VectorType :
     VectorType(ScalarType x, ScalarType y, ScalarType z, ScalarType w) :
         EigenVec(x, y, z, w) { }
 
-    template <typename Derived> VectorType(const Eigen::MatrixBase<Derived>& p)
-        : EigenVec(p) { }
+    template <typename Derived> VectorType(const Eigen::MatrixBase<Derived> &v)
+        : EigenVec(v) { }
 
 
     template <typename Derived> VectorType &operator=(
-            const Eigen::MatrixBase<Derived>& p)
+            const Eigen::MatrixBase<Derived> &v)
     {
-        this->EigenVec::operator=(p);
+        this->EigenVec::operator=(v);
         return *this;
     }
-
-    template <typename Derived> VectorType(const Derived *dataPtr)
-        : EigenVec(dataPtr) { }
 };
 
 typedef VectorType<Float, 3> Vector3f;

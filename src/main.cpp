@@ -14,8 +14,6 @@
 #include <kiryu/normalIntegrator.h>
 #include <kiryu/screen.h>
 
-using Eigen::MatrixXd;
-
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 480
 #define KIRYU_GUI_ENABLE true
@@ -23,7 +21,8 @@ using Eigen::MatrixXd;
 std::atomic_int pixelIndex(0);
 
 void tracePool(int i, Screen *screen, Sensor &sensor, Integrator &integrator,
-        float *outputFrame) {
+        float *outputFrame)
+{
     bool finished;
     int rayCount = 1000;
     while (true) {
@@ -132,6 +131,7 @@ int main() {
     }
 
     int threadCount = std::thread::hardware_concurrency();
+    threadCount = 1;
 
     std::vector<std::thread> workers;
     workers.reserve(threadCount);
@@ -160,7 +160,7 @@ int main() {
         delete screen;
     }
 
-    
+
 
     return EXIT_SUCCESS;
 }

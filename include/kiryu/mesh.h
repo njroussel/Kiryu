@@ -7,7 +7,7 @@
 class Mesh {
     public:
         Mesh(const std::vector<tinyobj::index_t> &indices,
-                const std::vector<Float> &vertices,
+                std::vector<Float> &vertices,
                 const std::vector<Float> &normals,
                 const std::vector<Float> &texCoords,
                 const tinyobj::mesh_t &mesh);
@@ -22,7 +22,7 @@ class Mesh {
     private:
         const size_t m_faceCount;
         const std::vector<tinyobj::index_t> &m_indices;
-        const std::vector<Float> &m_vertices;
+        std::vector<Float> &m_vertices;
         const std::vector<Float> &m_normals;
         const std::vector<Float> &m_texCoords;
 };
