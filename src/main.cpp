@@ -18,11 +18,11 @@ using Eigen::MatrixXd;
 
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 480
-#define KIRYU_GUI_ENABLE false
+#define KIRYU_GUI_ENABLE true
 
 std::atomic_int pixelIndex(0);
 
-void tracePool(int i, void *screen, Sensor &sensor, Integrator &integrator,
+void tracePool(int i, Screen *screen, Sensor &sensor, Integrator &integrator,
         float *outputFrame) {
     bool finished;
     int rayCount = 1000;
@@ -47,7 +47,7 @@ void tracePool(int i, void *screen, Sensor &sensor, Integrator &integrator,
         }
 
         if (KIRYU_GUI_ENABLE) {
-            static_cast<Screen *>(screen)->texChanged();
+            screen->texChanged();
         }
     }
 }
@@ -110,23 +110,25 @@ int main() {
         }
     }
 
-    void *screenPtr = nullptr;
+    Screen *screenPtr = nullptr;
     std::thread *renderThreadPtr = nullptr;
 
     if (KIRYU_GUI_ENABLE) {
-        Screen screen(WINDOW_WIDTH, WINDOW_HEIGHT);
-        screenPtr = &screenPtr;
+        Screen *screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+        screenPtr = screen;
 
-        if (!screen.wasCreated()) {
+        if (!screen->wasCreated()) {
             std::cerr << "Could not create screen!" << std::endl;
             return EXIT_FAILURE;
         }
 
-        screen.bindTexture(outputFrame);
+        screen->bindTexture(outputFrame);
 
         glfwMakeContextCurrent(NULL);
-        std::thread renderThread(&Screen::renderTextureWhileActive, &screen);
-        renderThreadPtr = &renderThread;
+        std::cout << "Before" << std::endl;
+        std::thread *renderThread = new std::thread(&Screen::renderTextureWhileActive, screen);
+        std::cout << "After" << std::endl;
+        renderThreadPtr = renderThread;
     }
 
     int threadCount = std::thread::hardware_concurrency();
@@ -152,7 +154,13 @@ int main() {
 
     if (KIRYU_GUI_ENABLE) {
         renderThreadPtr->join();
+
+
+        Screen *screen = static_cast<Screen *>(screenPtr);
+        delete screen;
     }
+
+    
 
     return EXIT_SUCCESS;
 }
