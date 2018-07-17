@@ -16,7 +16,7 @@
 
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 480
-#define KIRYU_GUI_ENABLE true
+#define KIRYU_GUI_ENABLE false
 
 std::atomic_int pixelIndex(0);
 
@@ -131,7 +131,6 @@ int main() {
     }
 
     int threadCount = std::thread::hardware_concurrency();
-    threadCount = 1;
 
     std::vector<std::thread> workers;
     workers.reserve(threadCount);

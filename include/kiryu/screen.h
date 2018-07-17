@@ -35,7 +35,7 @@ class Screen {
         };
 
         const GLchar *m_vShaderText = R"glsl(
-            #version 330 core
+            #version 330
             in vec2 vPos;
             in vec2 texCoord;
             out vec2 uv;
@@ -45,7 +45,7 @@ class Screen {
             })glsl";
 
         const GLchar *m_fShaderText = R"glsl(
-            #version 330 core
+            #version 330
             in vec2 uv;
             out vec4 outColor;
             uniform sampler2D tex;

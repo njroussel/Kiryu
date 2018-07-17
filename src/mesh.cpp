@@ -1,4 +1,3 @@
-#include <Eigen/Dense>
 #include <iostream>
 
 #include <kiryu/mesh.h>
@@ -28,9 +27,9 @@ void Mesh::getNormal(const size_t faceIndex,
 
     const Float *normalsData = m_normals.data();
 
-    Vector3f n0(normalsData + n0Index);
-    Vector3f n1(normalsData + n1Index);
-    Vector3f n2(normalsData + n2Index);
+    const ConstVector3fMap n0(normalsData + n0Index);
+    const ConstVector3fMap n1(normalsData + n1Index);
+    const ConstVector3fMap n2(normalsData + n2Index);
 
     normal = ((1 - u - v) * n0 + u * n1 + v * n2).normalized();
 }
@@ -42,28 +41,11 @@ bool Mesh::intersectRay(const Ray3f &ray, const size_t faceIndex,
     int v1Index = m_indices[faceIndex * 3 + 1].vertex_index * 3;
     int v2Index = m_indices[faceIndex * 3 + 2].vertex_index * 3;
 
-    Float *verticesData = m_vertices.data();
-    Float startValue = verticesData[v0Index];
+    const Float *verticesData = m_vertices.data();
 
-
-    std::cout << verticesData[v0Index] << std::endl;
-    std::cout << std::endl;
-    const Vector3f v0(verticesData + v0Index);
-    std::cout << v0<< std::endl;
-    std::cout << std::endl;
-
-    verticesData[v0Index] = 0;
-    std::cout << verticesData[v0Index] << std::endl;
-    std::cout << std::endl;
-
-    std::cout << v0 << std::endl;
-    std::cout << std::endl;
-    std::cout << "---------" << std::endl;
-
-    verticesData[v0Index] = startValue;
-
-    const Vector3f v1(verticesData + v1Index);
-    const Vector3f v2(verticesData + v2Index);
+    const ConstVector3fMap v0(verticesData + v0Index);
+    const ConstVector3fMap v1(verticesData + v1Index);
+    const ConstVector3fMap v2(verticesData + v2Index);
 
     Vector3f edge1 = v1 - v0;
     Vector3f edge2 = v2 - v0;
