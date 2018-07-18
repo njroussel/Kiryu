@@ -4,7 +4,7 @@
 
 #include <kiryu/common.h>
 
-template <typename ScalarType_, int Dimension_> struct VectorType :
+template <typename ScalarType_, int Dimension_> struct VectorT:
     public Eigen::Matrix<ScalarType_, Dimension_, 1>
 {
     enum {
@@ -14,52 +14,48 @@ template <typename ScalarType_, int Dimension_> struct VectorType :
     typedef ScalarType_ ScalarType;
     typedef Eigen::Matrix<ScalarType, Dimension, 1> BaseType;
 
-    VectorType(ScalarType x = (ScalarType) 0) { BaseType::setConstant(x); }
+    VectorT(ScalarType x = (ScalarType) 0) { BaseType::setConstant(x); }
 
-    VectorType(ScalarType x, ScalarType y) : BaseType(x, y) { }
+    VectorT(ScalarType x, ScalarType y) : BaseType(x, y) { }
 
-    VectorType(ScalarType x, ScalarType y, ScalarType z) :
+    VectorT(ScalarType x, ScalarType y, ScalarType z) :
         BaseType(x, y, z) {
         }
 
-    VectorType(ScalarType x, ScalarType y, ScalarType z, ScalarType w) :
+    VectorT(ScalarType x, ScalarType y, ScalarType z, ScalarType w) :
         BaseType(x, y, z, w) { }
 
-    template <typename Derived> VectorType(const Eigen::MatrixBase<Derived> &v)
+    template <typename Derived> VectorT(const Eigen::MatrixBase<Derived> &v)
         : BaseType(v) { }
 
-    template <typename Derived> VectorType &operator=(
+    template <typename Derived> VectorT &operator=(
             const Eigen::MatrixBase<Derived> &v)
     {
         this->BaseType::operator=(v);
         return *this;
     }
-
-    template <typename Derived> VectorType (const Derived *data)
-        : BaseType(data) { }
 };
 
 
-template <typename VecType_> struct VectorTypeMap :
-    public Eigen::Map<VecType_>
+template <typename VectorType_> struct VectorTMap :
+    public Eigen::Map<const Eigen::Matrix<typename VectorType_::ScalarType,
+    VectorType_::Dimension, 1>>
 {
-    typedef VecType_ VecType;
-    typedef typename VecType::Scalar ScalarType;
-    typedef Eigen::Map<VecType> EigenVecMap;
+    typedef VectorType_ VectorType;
+    typedef typename VectorType::Scalar ScalarType;
+    typedef typename VectorType::BaseType VectorBaseType;
+    typedef Eigen::Map<const VectorBaseType> BaseType;
 
-    VectorTypeMap(ScalarType *dataPtr) : EigenVecMap(dataPtr) { }
+    VectorTMap(ScalarType *dataPtr) : BaseType(dataPtr) { }
 
-    VectorTypeMap(const ScalarType *dataPtr) : EigenVecMap(dataPtr) { }
+    VectorTMap(const ScalarType *dataPtr) : BaseType(dataPtr) { }
 };
 
-typedef VectorType<Float, 3> Vector3f;
-typedef VectorType<Float, 3> Color3f;
+typedef VectorT<Float, 3> Vector3f;
+typedef VectorT<Float, 3> Color3f;
 
-// TODO: Something nicer than this hack... Passing just Vector3f as a template
-// argument fails as Eigen::Map will have a derived class as template argument
-// and not the base Eigen::Matrix which it derives
-typedef VectorTypeMap<const Vector3f> ConstVector3fMap;
-typedef VectorTypeMap<Vector3f::BaseType> Vector3fMap;
+typedef VectorTMap<const Vector3f> Vector3fMap;
+typedef VectorTMap<const Vector3f> Vector3fMap;
 
 typedef Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
 

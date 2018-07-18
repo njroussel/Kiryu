@@ -21,15 +21,15 @@ Mesh::Mesh(const std::vector<tinyobj::index_t> &indices,
 void Mesh::getNormal(const size_t faceIndex,
         const Float u, const Float v, Vector3f &normal) const
 {
-    int n0Index = m_indices[faceIndex * 3 + 0].normal_index * 3;
-    int n1Index = m_indices[faceIndex * 3 + 1].normal_index * 3;
-    int n2Index = m_indices[faceIndex * 3 + 2].normal_index * 3;
+    const int n0Index = m_indices[faceIndex * 3 + 0].normal_index * 3;
+    const int n1Index = m_indices[faceIndex * 3 + 1].normal_index * 3;
+    const int n2Index = m_indices[faceIndex * 3 + 2].normal_index * 3;
 
     const Float *normalsData = m_normals.data();
 
-    const ConstVector3fMap n0(normalsData + n0Index);
-    const ConstVector3fMap n1(normalsData + n1Index);
-    const ConstVector3fMap n2(normalsData + n2Index);
+    const Vector3fMap n0(normalsData + n0Index);
+    const Vector3fMap n1(normalsData + n1Index);
+    const Vector3fMap n2(normalsData + n2Index);
 
     normal = ((1 - u - v) * n0 + u * n1 + v * n2).normalized();
 }
@@ -37,38 +37,39 @@ void Mesh::getNormal(const size_t faceIndex,
 bool Mesh::intersectRay(const Ray3f &ray, const size_t faceIndex,
         Vector3f &outIntersectionPoint, Float &u, Float &v) const
 {
-    int v0Index = m_indices[faceIndex * 3 + 0].vertex_index * 3;
-    int v1Index = m_indices[faceIndex * 3 + 1].vertex_index * 3;
-    int v2Index = m_indices[faceIndex * 3 + 2].vertex_index * 3;
+    const int v0Index = m_indices[faceIndex * 3 + 0].vertex_index * 3;
+    const int v1Index = m_indices[faceIndex * 3 + 1].vertex_index * 3;
+    const int v2Index = m_indices[faceIndex * 3 + 2].vertex_index * 3;
 
     const Float *verticesData = m_vertices.data();
 
-    const ConstVector3fMap v0(verticesData + v0Index);
-    const ConstVector3fMap v1(verticesData + v1Index);
-    const ConstVector3fMap v2(verticesData + v2Index);
+    const Vector3fMap v0(verticesData + v0Index);
+    const Vector3fMap v1(verticesData + v1Index);
+    const Vector3fMap v2(verticesData + v2Index);
 
-    Vector3f edge1 = v1 - v0;
-    Vector3f edge2 = v2 - v0;
-    Vector3f h = ray.direction.cross(edge2);
-    Float a = edge1.dot(h);
+    const Vector3f edge1 = v1 - v0;
+    const Vector3f edge2 = v2 - v0;
+    const Vector3f h = ray.direction.cross(edge2);
+    const Float a = edge1.dot(h);
+
     if (a > -KIRYU_EPSILON && a < KIRYU_EPSILON){
         return false;
     }
 
-    Float inv_a = 1 / a;
-    Vector3f s = ray.origin - v0;
+    const Float inv_a = 1 / a;
+    const Vector3f s = ray.origin - v0;
     u = inv_a * (s.dot(h));
     if (u < 0.0 || u > 1.0) {
         return false;
     }
 
-    Vector3f q = s.cross(edge1);
+    const Vector3f q = s.cross(edge1);
     v = inv_a * ray.direction.dot(q);
     if (v < 0.0 || u + v > 1.0) {
         return false;
     }
 
-    Float t = inv_a * (edge2.dot(q));
+    const Float t = inv_a * (edge2.dot(q));
     if (t > KIRYU_EPSILON) {
         outIntersectionPoint = ray.origin + ray.direction * t;
         return true;
