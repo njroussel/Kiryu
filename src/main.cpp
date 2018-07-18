@@ -14,9 +14,9 @@
 #include <kiryu/normalIntegrator.h>
 #include <kiryu/screen.h>
 
-#define WINDOW_WIDTH 720
-#define WINDOW_HEIGHT 480
-#define KIRYU_GUI_ENABLE false
+#define WINDOW_WIDTH 360
+#define WINDOW_HEIGHT 240
+#define KIRYU_GUI_ENABLE true
 
 std::atomic_int pixelIndex(0);
 

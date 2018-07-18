@@ -37,14 +37,17 @@ template <typename ScalarType_, int Dimension_> struct VectorT:
 };
 
 
+// TODO: There most likely is a much nicer way of doing this
 template <typename VectorType_> struct VectorTMap :
-    public Eigen::Map<const Eigen::Matrix<typename VectorType_::ScalarType,
-    VectorType_::Dimension, 1>>
+    public Eigen::Map<typename std::conditional<std::is_const<VectorType_>::value,
+    const typename VectorType_::BaseType,
+    typename VectorType_::BaseType>::type>
 {
     typedef VectorType_ VectorType;
     typedef typename VectorType::Scalar ScalarType;
     typedef typename VectorType::BaseType VectorBaseType;
-    typedef Eigen::Map<const VectorBaseType> BaseType;
+    typedef Eigen::Map<typename std::conditional<std::is_const<VectorType>::value,
+            const VectorBaseType, VectorBaseType>::type> BaseType;
 
     VectorTMap(ScalarType *dataPtr) : BaseType(dataPtr) { }
 
@@ -54,8 +57,8 @@ template <typename VectorType_> struct VectorTMap :
 typedef VectorT<Float, 3> Vector3f;
 typedef VectorT<Float, 3> Color3f;
 
-typedef VectorTMap<const Vector3f> Vector3fMap;
-typedef VectorTMap<const Vector3f> Vector3fMap;
+typedef VectorTMap<const Vector3f> ConstVector3fMap;
+typedef VectorTMap<Vector3f> Vector3fMap;
 
 typedef Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
 
