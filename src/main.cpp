@@ -5,12 +5,14 @@
 #include <Eigen/Dense>
 #include <tiny_obj_loader.h>
 
-#include <kiryu/aabb.h>
 #include <kiryu/vector.h>
+#include <kiryu/ray.h>
+#include <kiryu/aabb.h>
 #include <kiryu/sensor.h>
 #include <kiryu/mesh.h>
 #include <kiryu/scene.h>
 #include <kiryu/bruteAccel.h>
+#include <kiryu/kdtree.h>
 #include <kiryu/normalIntegrator.h>
 #include <kiryu/screen.h>
 
@@ -83,7 +85,7 @@ int main() {
     scene.addMesh(mesh0);
     scene.addMesh(mesh1);
 
-    BruteAccel accel(scene);
+    KDTree accel(scene);
     NormalIntegrator integrator(accel);
 
     Vector3f position = {0, 0, 0};

@@ -62,8 +62,3 @@ typedef VectorTMap<const Vector3f> ConstVector3fMap;
 typedef VectorTMap<Vector3f> Vector3fMap;
 
 typedef Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
-
-struct Ray3f {
-    Vector3f origin;
-    Vector3f direction;
-};

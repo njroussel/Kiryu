@@ -2,7 +2,7 @@
 
 #include <tiny_obj_loader.h>
 
-#include <kiryu/vector.h>
+#include <kiryu/ray.h>
 #include <kiryu/aabb.h>
 
 class Mesh {
@@ -13,7 +13,9 @@ class Mesh {
                 const std::vector<Float> &texCoords,
                 const tinyobj::mesh_t &mesh);
 
-        inline int getFaceCount() const { return m_faceCount; }
+        inline const size_t getFaceCount() const { return m_faceCount; }
+
+        inline const std::vector<Float>& getVertices() const { return m_vertices; }
 
         void getNormal(const size_t faceIndex,
                 const Float u, const Float v, Vector3f &normal) const;

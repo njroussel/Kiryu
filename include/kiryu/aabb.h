@@ -1,9 +1,12 @@
 #pragma once
 
-#include <kiryu/vector.h>
+#include <kiryu/ray.h>
 #include <iostream>
 
 template <typename VectorType_> struct AABB {
+    enum {
+        Dimension = VectorType_::Dimension
+    };
 
     typedef VectorType_ VectorType;
     typedef typename VectorType::ScalarType ScalarType;
@@ -18,16 +21,14 @@ template <typename VectorType_> struct AABB {
     template <typename Derived, typename OtherDerived> AABB(Derived &min_,
             OtherDerived &max_) : min(min_), max(max_) { }
 
-    template <typename Derived> void expand(Derived &point) {
-        std::cout << "MEME" << std::endl;
-        point(0) = 0;
+    template <typename Derived> void expand(const Derived &point) {
         min = min.cwiseMin(point);
         max = max.cwiseMax(point);
     }
 
-    template <typename Derived> void expand(const Derived &point) {
-        min = min.cwiseMin(point);
-        max = max.cwiseMax(point);
+    void expand(const AABB<VectorType> &aabb) {
+        min = min.cwiseMin(aabb.min);
+        max = max.cwiseMax(aabb.max);
     }
 
     template <typename Derived> bool overlaps(const Derived &point,
@@ -40,6 +41,23 @@ template <typename VectorType_> struct AABB {
 
         return (min.array() <= point.array()).all() &&
             (point.array() <= max.array()).all();
+    }
+
+    template <typename Derived> bool intersectRay(
+            const Ray<Derived> &ray) const
+    {
+        for (size_t i = 0; i < Dimension; i++) {
+            if (ray.direction(i) == (ScalarType) 0) {
+                if (ray.origin(i) 
+
+            }
+
+            ScalarType tMin = (min(i) - ray.origin(i)) / ray.direction(i);
+            ScalarType tMax = (max(i) - ray.origin(i)) / ray.direction(i);
+
+            return true;
+        }
+        return false;
     }
 
     VectorType min;

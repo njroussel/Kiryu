@@ -1,7 +1,7 @@
 #pragma once
 
 #include <kiryu/common.h>
-#include <kiryu/vector.h>
+#include <kiryu/ray.h>
 
 class Sensor {
     public:

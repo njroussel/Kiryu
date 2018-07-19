@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <kiryu/vector.h>
+#include <kiryu/accel.h>
 
 /**
  * NOTE: This class was written after reading through pbrt-v3's implementation
@@ -96,7 +97,12 @@ struct KDTreeNode {
 
 };
 
-class KDTree {
+class KDTree : public Accel {
     public:
-        KDTree();
+        KDTree(const Scene &scene);
+
+        void intersectScene(const Ray3f &ray, Intersection &its) const override;
+
+    private:
+        AABB3f m_aabb;
 };

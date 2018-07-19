@@ -33,6 +33,55 @@ bool KDTreeNode::isLeafNode() const {
     return (faceCount & 3) == 3;
 }
 
-KDTree::KDTree() { }
+KDTree::KDTree(const Scene &scene) : Accel(scene) {
 
+    std::vector<std::reference_wrapper<const Mesh>> meshes = m_scene.getMeshes();
 
+    for (size_t i = 0; i < meshes.size(); i++) {
+        const Mesh &mesh = meshes[i];
+
+        const std::vector<Float> &vertices = mesh.getVertices();
+        const size_t vertexCount = vertices.size();
+
+        for (int i = 0; i < vertexCount / 3; i++) {
+            const ConstVector3fMap vertex(vertices.data() + i);
+            m_aabb.expand(vertex);
+        }
+    }
+}
+
+void KDTree::intersectScene(const Ray3f &ray, Intersection &its) const {
+    its.intersection = false;
+
+    if (!m_aabb.intersectRay(ray)) {
+        return;
+    }
+
+    Vector3f itsPoint;
+    Float minIntersectionDistance = std::numeric_limits<Float>::infinity();
+    Float u, v;
+
+    std::vector<std::reference_wrapper<const Mesh>> meshes = m_scene.getMeshes();
+    for (size_t i = 0; i < meshes.size(); i++) {
+        const Mesh &mesh = meshes[i];
+
+        for (size_t f = 0; f < mesh.getFaceCount(); f++) {
+            bool intersection = mesh.intersectRay(ray, f,
+                    itsPoint, u, v);
+
+            if (intersection) {
+                its.intersection = true;
+                Float distance = (itsPoint - ray.origin).norm();
+
+                if (distance < minIntersectionDistance) {
+                    minIntersectionDistance = distance;
+                    its.p = itsPoint;
+                    its.u = u;
+                    its.v = v;
+                    its.mesh = &mesh;
+                    its.faceIndex = f;
+                }
+            }
+        }
+    }
+}

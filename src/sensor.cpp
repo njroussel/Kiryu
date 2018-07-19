@@ -33,5 +33,5 @@ Ray3f Sensor::generateRay(uint16_t xPixel, uint16_t yPixel, Float xSample,
 
     Vector3f rayDirection = (rayOrigin - m_position).normalized();
 
-    return {rayOrigin, rayDirection};
+    return Ray3f(rayOrigin, rayDirection);
 }
