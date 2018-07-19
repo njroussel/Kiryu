@@ -16,7 +16,7 @@
 
 #define WINDOW_WIDTH 360
 #define WINDOW_HEIGHT 240
-#define KIRYU_GUI_ENABLE true
+#define KIRYU_GUI_ENABLE false
 
 std::atomic_int pixelIndex(0);
 
@@ -138,7 +138,7 @@ int main() {
 
     auto startTime = std::chrono::system_clock::now();
 
-    for (int p = 0 ; p < threadCount; p++) { 
+    for (int p = 0 ; p < threadCount; p++) {
         workers.push_back(
                 std::thread(tracePool, p, screenPtr, std::ref(sensor),
                     std::ref(integrator), outputFrame));

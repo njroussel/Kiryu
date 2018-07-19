@@ -3,6 +3,7 @@
 #include <tiny_obj_loader.h>
 
 #include <kiryu/vector.h>
+#include <kiryu/aabb.h>
 
 class Mesh {
     public:
@@ -16,6 +17,8 @@ class Mesh {
 
         void getNormal(const size_t faceIndex,
                 const Float u, const Float v, Vector3f &normal) const;
+
+        void getAABB(const size_t faceIndex, AABB3f &aabb) const;
 
         bool intersectRay(const Ray3f &ray, const size_t faceIndex,
                 Vector3f &outIntersectionPoint, Float &u, Float &v) const;

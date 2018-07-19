@@ -96,7 +96,6 @@ struct KDTreeNode {
 
 };
 
-
 class KDTree {
     public:
         KDTree();

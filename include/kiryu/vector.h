@@ -19,11 +19,12 @@ template <typename ScalarType_, int Dimension_> struct VectorT:
     VectorT(ScalarType x, ScalarType y) : BaseType(x, y) { }
 
     VectorT(ScalarType x, ScalarType y, ScalarType z) :
-        BaseType(x, y, z) {
-        }
+        BaseType(x, y, z) { }
 
     VectorT(ScalarType x, ScalarType y, ScalarType z, ScalarType w) :
         BaseType(x, y, z, w) { }
+
+    VectorT(const ScalarType *dataPtr) : BaseType(dataPtr) { }
 
     template <typename Derived> VectorT(const Eigen::MatrixBase<Derived> &v)
         : BaseType(v) { }

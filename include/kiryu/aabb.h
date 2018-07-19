@@ -1,31 +1,49 @@
 #pragma once
 
-/**
- * Lightweight version of Eigen's AlignedBox specifically written for Kiryu
- */
-/*
-template <typename _Scalar, int _Dimension> struct AABB {
-    enum {
-        Dimension = _Dimension
-    };
+#include <kiryu/vector.h>
+#include <iostream>
 
-    typedef _Scalar Scalar;
-    typedef Eigen::Matrix<Scalar, Dimension, 1> TVector;
+template <typename VectorType_> struct AABB {
 
-    AABB(TVector &point) : min(point), max(point) { }
+    typedef VectorType_ VectorType;
+    typedef typename VectorType::ScalarType ScalarType;
 
-    AABB(TVector &min_, TVector &max_) : min(min_), max(max_) { }
+    AABB() :
+        min(std::numeric_limits<ScalarType>::infinity()),
+        max(-std::numeric_limits<ScalarType>::infinity()) { }
 
-    void expand(TVector &point) {
+    template <typename Derived> AABB(const Derived &point) :
+        min(point), max(point) { }
+
+    template <typename Derived, typename OtherDerived> AABB(Derived &min_,
+            OtherDerived &max_) : min(min_), max(max_) { }
+
+    template <typename Derived> void expand(Derived &point) {
+        std::cout << "MEME" << std::endl;
+        point(0) = 0;
         min = min.cwiseMin(point);
         max = max.cwiseMax(point);
     }
 
-    bool overlaps(TVector &point, bool strict = false) {
-        return false;
+    template <typename Derived> void expand(const Derived &point) {
+        min = min.cwiseMin(point);
+        max = max.cwiseMax(point);
     }
 
-    Eigen::Matrix<Scalar, _Dimension, 1> min;
-    Eigen::Matrix<Scalar, _Dimension, 1> max;
+    template <typename Derived> bool overlaps(const Derived &point,
+            bool strict = false) const
+    {
+        if (strict) {
+            return (min.array() < point.array()).all() &&
+                (point.array() < max.array()).all();
+        }
+
+        return (min.array() <= point.array()).all() &&
+            (point.array() <= max.array()).all();
+    }
+
+    VectorType min;
+    VectorType max;
 };
-*/
+
+typedef AABB<Vector3f> AABB3f;

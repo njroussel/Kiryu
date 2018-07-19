@@ -34,6 +34,22 @@ void Mesh::getNormal(const size_t faceIndex,
     normal = ((1 - u - v) * n0 + u * n1 + v * n2).normalized();
 }
 
+void Mesh::getAABB(const size_t faceIndex, AABB3f &aabb) const {
+    const int v0Index = m_indices[faceIndex * 3 + 0].vertex_index * 3;
+    const int v1Index = m_indices[faceIndex * 3 + 1].vertex_index * 3;
+    const int v2Index = m_indices[faceIndex * 3 + 2].vertex_index * 3;
+
+    const Float *verticesData = m_vertices.data();
+
+    const ConstVector3fMap v0(verticesData + v0Index);
+    const ConstVector3fMap v1(verticesData + v1Index);
+    const ConstVector3fMap v2(verticesData + v2Index);
+
+    aabb.expand(v0);
+    aabb.expand(v1);
+    aabb.expand(v2);
+}
+
 bool Mesh::intersectRay(const Ray3f &ray, const size_t faceIndex,
         Vector3f &outIntersectionPoint, Float &u, Float &v) const
 {
