@@ -7,15 +7,18 @@ template <typename VectorType_> struct Ray {
     typedef typename VectorType::ScalarType ScalarType;
 
     Ray() :
-        origin((ScalarType) 0), direction((ScalarType) 0), tMin(KIRYU_EPSILON),
+        origin((ScalarType) 0), direction((ScalarType) 0),
+        directionCwiseInv((ScalarType) 0), tMin(KIRYU_EPSILON),
         tMax(std::numeric_limits<ScalarType>::infinity()) { }
 
     Ray(VectorType origin_, VectorType direction_) :
-        origin(origin_), direction(direction_), tMin(KIRYU_EPSILON),
+        origin(origin_), direction(direction_),
+        directionCwiseInv(direction_.cwiseInverse()), tMin(KIRYU_EPSILON),
         tMax(std::numeric_limits<ScalarType>::infinity()) { }
 
     VectorType origin;
     VectorType direction;
+    VectorType directionCwiseInv;
 
     ScalarType tMin;
     ScalarType tMax;

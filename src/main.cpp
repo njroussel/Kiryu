@@ -18,7 +18,7 @@
 
 #define WINDOW_WIDTH 360
 #define WINDOW_HEIGHT 240
-#define KIRYU_GUI_ENABLE false
+#define KIRYU_GUI_ENABLE true
 
 std::atomic_int pixelIndex(0);
 
@@ -72,18 +72,13 @@ int main() {
 
     std::cout << "Shapes: " << shapes.size() << std::endl;
     tinyobj::shape_t shape0 = shapes[0];
-    tinyobj::shape_t shape1 = shapes[1];
     tinyobj::mesh_t tinyObjMesh0 = shape0.mesh;
-    tinyobj::mesh_t tinyObjMesh1 = shape1.mesh;
 
     Mesh mesh0(tinyObjMesh0.indices, attrib.vertices, attrib.normals, attrib.texcoords,
             tinyObjMesh0);
-    Mesh mesh1(tinyObjMesh1.indices, attrib.vertices, attrib.normals, attrib.texcoords,
-            tinyObjMesh1);
 
     Scene scene;
     scene.addMesh(mesh0);
-    scene.addMesh(mesh1);
 
     KDTree accel(scene);
     NormalIntegrator integrator(accel);
@@ -126,9 +121,7 @@ int main() {
         screen->bindTexture(outputFrame);
 
         glfwMakeContextCurrent(NULL);
-        std::cout << "Before" << std::endl;
         std::thread *renderThread = new std::thread(&Screen::renderTextureWhileActive, screen);
-        std::cout << "After" << std::endl;
         renderThreadPtr = renderThread;
     }
 

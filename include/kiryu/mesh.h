@@ -15,7 +15,9 @@ class Mesh {
 
         inline const size_t getFaceCount() const { return m_faceCount; }
 
-        inline const std::vector<Float>& getVertices() const { return m_vertices; }
+        inline const std::vector<Float>& getVertices() const {
+            return m_vertices;
+        }
 
         void getNormal(const size_t faceIndex,
                 const Float u, const Float v, Vector3f &normal) const;

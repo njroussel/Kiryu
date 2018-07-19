@@ -46,18 +46,34 @@ template <typename VectorType_> struct AABB {
     template <typename Derived> bool intersectRay(
             const Ray<Derived> &ray) const
     {
+        ScalarType tMin = -std::numeric_limits<ScalarType>::infinity();
+        ScalarType tMax = std::numeric_limits<ScalarType>::infinity();
+
         for (size_t i = 0; i < Dimension; i++) {
             if (ray.direction(i) == (ScalarType) 0) {
-                if (ray.origin(i) 
-
+                if (ray.origin(i) < min(i) || max(i) < ray.origin(i)) {
+                    return false;
+                }
             }
 
-            ScalarType tMin = (min(i) - ray.origin(i)) / ray.direction(i);
-            ScalarType tMax = (max(i) - ray.origin(i)) / ray.direction(i);
+            ScalarType tMinAxis = (min(i) - ray.origin(i)) *
+                ray.directionCwiseInv(i);
+            ScalarType tMaxAxis = (max(i) - ray.origin(i)) *
+                ray.directionCwiseInv(i);
 
-            return true;
+            if (tMinAxis > tMaxAxis) {
+                std::swap(tMinAxis, tMaxAxis);
+            }
+
+            tMin = std::max(tMin, tMinAxis);
+            tMax = std::min(tMax, tMaxAxis);
+
+            if (tMin > tMax) {
+                return false;
+            }
         }
-        return false;
+
+        return ray.tMin <= tMax && ray.tMax >= tMin;
     }
 
     VectorType min;

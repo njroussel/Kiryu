@@ -37,7 +37,6 @@ template <typename ScalarType_, int Dimension_> struct VectorT:
     }
 };
 
-
 // TODO: There most likely is a much nicer way of doing this
 template <typename VectorType_> struct VectorTMap :
     public Eigen::Map<typename std::conditional<std::is_const<VectorType_>::value,

@@ -34,18 +34,17 @@ bool KDTreeNode::isLeafNode() const {
 }
 
 KDTree::KDTree(const Scene &scene) : Accel(scene) {
-
     std::vector<std::reference_wrapper<const Mesh>> meshes = m_scene.getMeshes();
 
     for (size_t i = 0; i < meshes.size(); i++) {
         const Mesh &mesh = meshes[i];
 
-        const std::vector<Float> &vertices = mesh.getVertices();
-        const size_t vertexCount = vertices.size();
+        const size_t faceCount = mesh.getFaceCount();
 
-        for (int i = 0; i < vertexCount / 3; i++) {
-            const ConstVector3fMap vertex(vertices.data() + i);
-            m_aabb.expand(vertex);
+        for (size_t i = 0; i < faceCount; i++) {
+            AABB3f aabb;
+            mesh.getAABB(i, aabb);
+            m_aabb.expand(aabb);
         }
     }
 }
