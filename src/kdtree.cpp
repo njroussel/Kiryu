@@ -34,27 +34,26 @@ bool KDTreeNode::isLeafNode() const {
 }
 
 KDTree::KDTree(const Scene &scene) : Accel(scene) {
-    std::vector<std::reference_wrapper<const Mesh>> meshes = m_scene.getMeshes();
+    const size_t depth = 0;
+    size_t totalFaceCount = 0;
 
+    std::vector<std::reference_wrapper<const Mesh>> meshes = m_scene.getMeshes();
     for (size_t i = 0; i < meshes.size(); i++) {
         const Mesh &mesh = meshes[i];
-
-        const size_t faceCount = mesh.getFaceCount();
-
-        for (size_t i = 0; i < faceCount; i++) {
-            AABB3f aabb;
-            mesh.getAABB(i, aabb);
-            m_aabb.expand(aabb);
-        }
+        totalFaceCount += mesh.getFaceCount();
     }
+
+    buildTree(depth, totalFaceCount);
 }
 
 void KDTree::intersectScene(const Ray3f &ray, Intersection &its) const {
     its.intersection = false;
 
+    /*
     if (!m_aabb.intersectRay(ray)) {
         return;
     }
+    */
 
     Vector3f itsPoint;
     Float minIntersectionDistance = std::numeric_limits<Float>::infinity();
@@ -82,5 +81,12 @@ void KDTree::intersectScene(const Ray3f &ray, Intersection &its) const {
                 }
             }
         }
+    }
+}
+
+void KDTree::buildTree(size_t depth, size_t faceCount) {
+    if (depth >= kMaxTreeDepth || faceCount <= kMinFaceCount) {
+        KDTreeNode node;
+
     }
 }

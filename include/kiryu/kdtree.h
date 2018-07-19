@@ -99,10 +99,17 @@ struct KDTreeNode {
 
 class KDTree : public Accel {
     public:
+        static const size_t kMaxTreeDepth = 0;
+        static const size_t kMinFaceCount = 10;
+
         KDTree(const Scene &scene);
 
         void intersectScene(const Ray3f &ray, Intersection &its) const override;
 
     private:
+        void buildTree(size_t depth, size_t faceCount);
+
         AABB3f m_aabb;
+        std::vector<KDTreeNode> m_nodes;
+        std::vector<AABB3f> m_aabbs;
 };
