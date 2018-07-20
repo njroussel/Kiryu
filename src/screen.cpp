@@ -19,6 +19,11 @@ Screen::Screen(uint16_t width, uint16_t height):
     glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
     glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
+    // TODO: Confirm that this is a minimum requirement and somewhat portable
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     m_window = glfwCreateWindow(m_width, m_height,
             "Kiryu", NULL, NULL);
     if (!m_window) {
