@@ -18,7 +18,7 @@
 
 #define WINDOW_WIDTH 360
 #define WINDOW_HEIGHT 240
-#define KIRYU_GUI_ENABLE true
+#define KIRYU_GUI_ENABLE false
 
 std::atomic_int pixelIndex(0);
 

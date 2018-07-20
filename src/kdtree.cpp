@@ -1,9 +1,9 @@
 #include <kiryu/kdtree.h>
 
 void KDTreeNode::initLeafNode(const size_t faceCount_,
-        const int *const  faceIndicesForLeaf,
-        std::vector<int> *const allFaceIndices) {
-    const size_t tmp = allFaceIndices->size();
+        const size_t *const faceIndicesForLeaf,
+        std::vector<size_t> *const allFaceIndices) {
+    faceIndexOffset = allFaceIndices->size();
     faceCount = (faceCount_ << 2) | 3;
 
     for (size_t i = 0; i < faceCount_; i++) {
@@ -11,14 +11,17 @@ void KDTreeNode::initLeafNode(const size_t faceCount_,
     }
 }
 
-void KDTreeNode::initTreeNode(const uint8_t axis, const Float axisSplitValue_, 
-        const size_t rightChildIndex_) {
+void KDTreeNode::initTreeNode(const uint8_t axis, const Float axisSplitValue_) {
     axisSplitValue = axisSplitValue_;
-    rightChildIndex = (rightChildIndex_ << 2) | axis;
+    rightChildIndex = axis;
 }
 
 size_t KDTreeNode::getRightChildIndex() const {
     return rightChildIndex >> 2;
+}
+
+void KDTreeNode::setRightChildIndex(const size_t rightChildIndex_) {
+    rightChildIndex = (rightChildIndex_ << 2) | rightChildIndex;
 }
 
 size_t KDTreeNode::getFaceCount() const {
@@ -36,30 +39,89 @@ bool KDTreeNode::isLeafNode() const {
 KDTree::KDTree(const Scene &scene) : Accel(scene) {
     const size_t depth = 0;
     size_t totalFaceCount = 0;
+    AABB3f aabb;
 
-    std::vector<std::reference_wrapper<const Mesh>> meshes = m_scene.getMeshes();
+    const std::vector<std::reference_wrapper<const Mesh>> &meshes =
+        *m_scene.getMeshes();
+
     for (size_t i = 0; i < meshes.size(); i++) {
         const Mesh &mesh = meshes[i];
-        totalFaceCount += mesh.getFaceCount();
+        size_t faceCount = mesh.getFaceCount();
+        m_cumFaceCountMeshes.push_back(faceCount);
+        totalFaceCount += faceCount;
+
+        for (size_t j = 0; j < faceCount; j++) {
+            mesh.getAABB(j, aabb);
+        }
     }
 
-    buildTree(depth, totalFaceCount);
+    m_aabbs.push_back(aabb);
+
+    size_t *faceIndices = new size_t[totalFaceCount];
+    for (size_t i = 0; i < totalFaceCount; i++) {
+        faceIndices[i] = totalFaceCount;
+    }
+
+    buildTree(depth, totalFaceCount, faceIndices);
+}
+
+void KDTree::buildTree(size_t depth, size_t faceCount, size_t *faceIndices) {
+    KDTreeNode node;
+
+    if (depth >= kMaxTreeDepth || faceCount <= kMinFaceCount) {
+        node.initLeafNode(faceCount, faceIndices, &m_allFaceIndices);
+        delete[] faceIndices;
+
+        m_nodes.push_back(node);
+    } else {
+        uint8_t axis = (depth % 3 + 3) % 3; // guarantee pos
+        Float axisSplitValue = 0.5;
+
+        node.initTreeNode(axis, axisSplitValue);
+        m_nodes.push_back(node);
+
+        const std::vector<std::reference_wrapper<const Mesh>> &meshes =
+            *m_scene.getMeshes();
+
+        size_t meshIndex = 0;
+        size_t cumFaceCountOffset = 0;
+
+        for (size_t i = 0; i < faceCount; i ++) {
+            for (size_t j = meshIndex; j < m_cumFaceCountMeshes.size(); j++) {
+                if (faceIndices[i] > m_cumFaceCountMeshes[j]) {
+                    meshIndex = j + 1;
+                    cumFaceCountOffset = m_cumFaceCountMeshes[j];
+                } else {
+                    break;
+                }
+            }
+
+            AABB3f aabb;
+            meshes[meshIndex].get().
+                getAABB(faceIndices[i] - cumFaceCountOffset, aabb);
+        }
+
+        size_t faceCount0 = faceCount;
+        size_t faceCount1 = faceCount;
+        size_t *faceIndices0 = faceIndices;
+        size_t *faceIndices1 = faceIndices;
+
+        buildTree(depth + 1, faceCount0, faceIndices0);
+        node.setRightChildIndex(m_nodes.size());
+        buildTree(depth + 1, faceCount1, faceIndices1);
+    }
 }
 
 void KDTree::intersectScene(const Ray3f &ray, Intersection &its) const {
     its.intersection = false;
 
-    /*
-    if (!m_aabb.intersectRay(ray)) {
-        return;
-    }
-    */
-
     Vector3f itsPoint;
     Float minIntersectionDistance = std::numeric_limits<Float>::infinity();
     Float u, v;
 
-    std::vector<std::reference_wrapper<const Mesh>> meshes = m_scene.getMeshes();
+    const std::vector<std::reference_wrapper<const Mesh>> &meshes =
+        *m_scene.getMeshes();
+
     for (size_t i = 0; i < meshes.size(); i++) {
         const Mesh &mesh = meshes[i];
 
@@ -81,12 +143,5 @@ void KDTree::intersectScene(const Ray3f &ray, Intersection &its) const {
                 }
             }
         }
-    }
-}
-
-void KDTree::buildTree(size_t depth, size_t faceCount) {
-    if (depth >= kMaxTreeDepth || faceCount <= kMinFaceCount) {
-        KDTreeNode node;
-
     }
 }

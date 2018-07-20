@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include <vector>
 
@@ -48,7 +48,7 @@ struct KDTreeNode {
          * The value of the split along the axis defined in the two lower bits
          * of KDTreeNode::rightChildIndex.
          */
-        float axisSplitValue; 
+        Float axisSplitValue;
 
         /**
          * Used for leaf nodes.
@@ -68,7 +68,7 @@ struct KDTreeNode {
          * The "left" child is stored at the index following this node.
          * The two lower bits contain the axis of the split (x: 0, y: 1, z: 2).
          */
-        size_t rightChildIndex; 
+        size_t rightChildIndex;
 
         /**
          * Used for leaf nodes.
@@ -80,7 +80,9 @@ struct KDTreeNode {
         size_t faceCount;
     };
 
-    size_t getRightChildIndex() const; 
+    size_t getRightChildIndex() const;
+
+    void setRightChildIndex(const size_t rightChildIndex_);
 
     size_t getFaceCount() const;
 
@@ -89,12 +91,10 @@ struct KDTreeNode {
     bool isLeafNode() const;
 
     void initLeafNode(const size_t faceCount_,
-            const int *const  faceIndicesForLeaf,
-            std::vector<int> *const allFaceIndices);
+            const size_t *const  faceIndicesForLeaf,
+            std::vector<size_t> *const allFaceIndices);
 
-    void initTreeNode(const uint8_t axis, const float axisSplitValue_,
-            const size_t rightChildIndex_);
-
+    void initTreeNode(const uint8_t axis, const Float axisSplitValue_);
 };
 
 class KDTree : public Accel {
@@ -107,9 +107,10 @@ class KDTree : public Accel {
         void intersectScene(const Ray3f &ray, Intersection &its) const override;
 
     private:
-        void buildTree(size_t depth, size_t faceCount);
+        void buildTree(size_t depth, size_t faceCount, size_t *faceIndices);
 
-        AABB3f m_aabb;
         std::vector<KDTreeNode> m_nodes;
         std::vector<AABB3f> m_aabbs;
+        std::vector<size_t> m_cumFaceCountMeshes;
+        std::vector<size_t> m_allFaceIndices;
 };
