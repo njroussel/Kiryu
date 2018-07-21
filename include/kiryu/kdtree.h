@@ -99,7 +99,7 @@ struct KDTreeNode {
 
 class KDTree : public Accel {
     public:
-        static const size_t kMaxTreeDepth = 15;
+        static const size_t kMaxTreeDepth = 19;
         static const size_t kMinFaceCount = 10;
 
         KDTree(const Scene &scene);

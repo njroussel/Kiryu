@@ -16,8 +16,8 @@
 #include <kiryu/normalIntegrator.h>
 #include <kiryu/screen.h>
 
-#define WINDOW_WIDTH 360
-#define WINDOW_HEIGHT 240
+#define WINDOW_WIDTH 720
+#define WINDOW_HEIGHT 480
 #define KIRYU_GUI_ENABLE true
 
 std::atomic_int pixelIndex(0);
@@ -76,6 +76,7 @@ int main() {
 
     Mesh mesh0(tinyObjMesh0.indices, attrib.vertices, attrib.normals, attrib.texcoords,
             tinyObjMesh0);
+    std::cout << "Face count: " << mesh0.getFaceCount() << std::endl;
 
     Scene scene;
     scene.addMesh(mesh0);
@@ -126,7 +127,6 @@ int main() {
     }
 
     int threadCount = std::thread::hardware_concurrency();
-    threadCount = 1;
 
     std::vector<std::thread> workers;
     workers.reserve(threadCount);
@@ -145,7 +145,8 @@ int main() {
 
     auto endTime = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = endTime - startTime;
-    std::cout << "Rendering time: " << elapsed_seconds.count() << std::endl;
+    std::cout << "Rendering time: " << elapsed_seconds.count() << " seconds" <<
+        std::endl;
 
     if (KIRYU_GUI_ENABLE) {
         renderThreadPtr->join();

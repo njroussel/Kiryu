@@ -51,6 +51,7 @@ KDTree::KDTree(const Scene &scene) : Accel(scene) {
         totalFaceCount += faceCount;
 
         for (size_t j = 0; j < faceCount; j++) {
+            // Trick/Hack - actuall expands aabb for face j
             mesh.getAABB(j, aabb);
         }
     }
@@ -100,7 +101,7 @@ void KDTree::buildTree(size_t depth, size_t faceCount, size_t *faceIndices,
 
         for (size_t i = 0; i < faceCount; i ++) {
             for (size_t j = meshIndex; j < m_cumFaceCountMeshes.size(); j++) {
-                if (faceIndices[i] > m_cumFaceCountMeshes[j]) {
+                if (faceIndices[i] >= m_cumFaceCountMeshes[j]) {
                     meshIndex = j + 1;
                     cumFaceCountOffset = m_cumFaceCountMeshes[j];
                 } else {
@@ -132,7 +133,8 @@ void KDTree::buildTree(size_t depth, size_t faceCount, size_t *faceIndices,
 
         buildTree(depth + 1, faceCount0, faceIndices0, nodeIndex + 1);
 
-        node.setRightChildIndex(m_nodes.size());
+        m_nodes[nodeIndex].setRightChildIndex(m_nodes.size());
+
         Vector3f rightChildMax = currentNodeAABB.min;
         rightChildMax(axis) = axisSplitValue;
         m_aabbs.push_back(AABB3f(rightChildMax, currentNodeAABB.max));
@@ -142,7 +144,6 @@ void KDTree::buildTree(size_t depth, size_t faceCount, size_t *faceIndices,
 
 void KDTree::intersectScene(const Ray3f &ray, Intersection &its) const {
     its.intersection = false;
-
 
     Vector3f itsPoint;
     Float minIntersectionDistance = std::numeric_limits<Float>::infinity();
@@ -159,17 +160,21 @@ void KDTree::recurseTraverse(size_t nodeIndex, const Ray3f &ray,
     const std::vector<std::reference_wrapper<const Mesh>> &meshes =
         *m_scene.getMeshes();
 
+    if (m_nodes[nodeIndex].isLeafNode() &&
+            m_nodes[nodeIndex].getFaceCount() == 0) {
+        return;
+    }
+
     if (m_aabbs[nodeIndex].intersectRay(ray)) {
         if (m_nodes[nodeIndex].isLeafNode()) {
             size_t faceIndexOffset = m_nodes[nodeIndex].faceIndexOffset;
-            size_t faceCount = m_nodes[nodeIndex].faceIndexOffset;
-
+            size_t faceCount = m_nodes[nodeIndex].getFaceCount();
 
             size_t meshIndex = 0;
             size_t cumFaceCountOffset = 0;
             for (size_t f = faceIndexOffset; f < faceIndexOffset + faceCount; f++) {
                 for (size_t j = meshIndex; j < m_cumFaceCountMeshes.size(); j++) {
-                    if (m_allFaceIndices[f] > m_cumFaceCountMeshes[j]) {
+                    if (m_allFaceIndices[f] >= m_cumFaceCountMeshes[j]) {
                         meshIndex = j + 1;
                         cumFaceCountOffset = m_cumFaceCountMeshes[j];
                     } else {
@@ -191,13 +196,14 @@ void KDTree::recurseTraverse(size_t nodeIndex, const Ray3f &ray,
                         its.u = u;
                         its.v = v;
                         its.mesh = &(meshes[meshIndex].get());
-                        its.faceIndex = f;
+                        its.faceIndex = m_allFaceIndices[f] - cumFaceCountOffset;
                     }
                 }
             }
         } else {
             recurseTraverse(nodeIndex + 1, ray, its, itsPoint,
                     minIntersectionDistance, u, v);
+
             recurseTraverse(m_nodes[nodeIndex].getRightChildIndex(), ray, its,
                     itsPoint, minIntersectionDistance, u, v);
         }

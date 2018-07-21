@@ -50,7 +50,6 @@ template <typename VectorType_> struct AABB {
         ScalarType tMax = std::numeric_limits<ScalarType>::infinity();
 
         for (size_t i = 0; i < Dimension; i++) {
-            std::cout << ray.direciton << std::endl;
             if (ray.direction(i) == (ScalarType) 0) {
                 if (ray.origin(i) < min(i) || max(i) < ray.origin(i)) {
                     return false;

@@ -3,7 +3,6 @@
 NormalIntegrator::NormalIntegrator(const Accel &accel) : Integrator(accel) { }
 
 Color3f NormalIntegrator::Li(const Ray3f &ray) const {
-
     Intersection its;
     m_accel.intersectScene(ray, its);
 
