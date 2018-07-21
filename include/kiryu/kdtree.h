@@ -99,7 +99,7 @@ struct KDTreeNode {
 
 class KDTree : public Accel {
     public:
-        static const size_t kMaxTreeDepth = 0;
+        static const size_t kMaxTreeDepth = 15;
         static const size_t kMinFaceCount = 10;
 
         KDTree(const Scene &scene);
@@ -107,7 +107,12 @@ class KDTree : public Accel {
         void intersectScene(const Ray3f &ray, Intersection &its) const override;
 
     private:
-        void buildTree(size_t depth, size_t faceCount, size_t *faceIndices);
+        void buildTree(size_t depth, size_t faceCount, size_t *faceIndices,
+                size_t nodeIndex);
+
+        void recurseTraverse(size_t nodeIndex, const Ray3f &ray, Intersection &its,
+                Vector3f &itsPoint, Float &minIntersectionDistance, Float &u,
+                Float &v) const;
 
         std::vector<KDTreeNode> m_nodes;
         std::vector<AABB3f> m_aabbs;

@@ -126,6 +126,7 @@ int main() {
     }
 
     int threadCount = std::thread::hardware_concurrency();
+    threadCount = 1;
 
     std::vector<std::thread> workers;
     workers.reserve(threadCount);

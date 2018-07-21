@@ -24,6 +24,7 @@ class Mesh {
 
         void getAABB(const size_t faceIndex, AABB3f &aabb) const;
 
+        //TODO: Make this take an Intersection struct
         bool intersectRay(const Ray3f &ray, const size_t faceIndex,
                 Vector3f &outIntersectionPoint, Float &u, Float &v) const;
     private:
