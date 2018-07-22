@@ -47,8 +47,8 @@ KDTree::KDTree(const Scene &scene) : Accel(scene) {
     for (size_t i = 0; i < meshes.size(); i++) {
         const Mesh &mesh = meshes[i];
         size_t faceCount = mesh.getFaceCount();
-        m_cumFaceCountMeshes.push_back(faceCount);
         totalFaceCount += faceCount;
+        m_cumFaceCountMeshes.push_back(totalFaceCount);
 
         for (size_t j = 0; j < faceCount; j++) {
             // Trick/Hack - actuall expands aabb for face j

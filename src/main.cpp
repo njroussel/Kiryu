@@ -16,13 +16,13 @@
 #include <kiryu/normalIntegrator.h>
 #include <kiryu/screen.h>
 
-#define WINDOW_WIDTH 720
-#define WINDOW_HEIGHT 480
+#define WINDOW_WIDTH 1080
+#define WINDOW_HEIGHT 720
 #define KIRYU_GUI_ENABLE true
 
-std::atomic_int pixelIndex(0);
+static std::atomic_int pixelIndex(0);
 
-void tracePool(int i, Screen *screen, Sensor &sensor, Integrator &integrator,
+static void tracePool(int i, Screen *screen, Sensor &sensor, Integrator &integrator,
         float *outputFrame)
 {
     bool finished;
@@ -35,7 +35,7 @@ void tracePool(int i, Screen *screen, Sensor &sensor, Integrator &integrator,
             }
 
             int px = (startingPixelIndex + i) % WINDOW_WIDTH;
-            int py = (startingPixelIndex + i) /  WINDOW_WIDTH;
+            int py = (startingPixelIndex + i) / WINDOW_WIDTH;
 
             Ray3f ray = sensor.generateRay(px, py, 0.5, 0.5);
 
@@ -54,33 +54,63 @@ void tracePool(int i, Screen *screen, Sensor &sensor, Integrator &integrator,
 }
 
 int main() {
-    std::string inputfile = "../res/models/kiryu.obj";
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
+    Scene scene;
 
-    std::string err;
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, inputfile.c_str());
+    // MESH0
+    std::string inputfile0("../res/models/teapot.obj");
+    tinyobj::attrib_t attrib0;
+    std::vector<tinyobj::shape_t> shapes0;
+    std::vector<tinyobj::material_t> materials0;
 
-    if (!err.empty()) { // `err` may contain warning message.
-        std::cerr << err << std::endl;
+    std::string err0;
+    bool ret0 = tinyobj::LoadObj(&attrib0, &shapes0, &materials0, &err0, inputfile0.c_str());
+
+    if (!err0.empty()) { // `err` may contain warning message.
+        std::cerr << err0 << std::endl;
     }
-    if (!ret) {
+    if (!ret0) {
         std::cerr << "Could not load obj!" << std::endl;
         return EXIT_FAILURE;
     }
 
-    std::cout << "Shapes: " << shapes.size() << std::endl;
-    tinyobj::shape_t shape0 = shapes[0];
+    std::cout << "Shapes: " << shapes0.size() << std::endl;
+    tinyobj::shape_t shape0 = shapes0[0];
     tinyobj::mesh_t tinyObjMesh0 = shape0.mesh;
 
-    Mesh mesh0(tinyObjMesh0.indices, attrib.vertices, attrib.normals, attrib.texcoords,
+    Mesh mesh0(tinyObjMesh0.indices, attrib0.vertices, attrib0.normals, attrib0.texcoords,
             tinyObjMesh0);
     std::cout << "Face count: " << mesh0.getFaceCount() << std::endl;
 
-    Scene scene;
     scene.addMesh(mesh0);
 
+    // MESH1
+    std::string inputfile1("../res/models/kiryu.obj");
+    tinyobj::attrib_t attrib1;
+    std::vector<tinyobj::shape_t> shapes1;
+    std::vector<tinyobj::material_t> materials1;
+
+    std::string err1;
+    bool ret1 = tinyobj::LoadObj(&attrib1, &shapes1, &materials1, &err1, inputfile1.c_str());
+
+    if (!err1.empty()) { // `err` may contain warning message.
+        std::cerr << err1 << std::endl;
+    }
+    if (!ret1) {
+        std::cerr << "Could not load obj!" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::cout << "Shapes: " << shapes1.size() << std::endl;
+    tinyobj::shape_t shape1 = shapes1[0];
+    tinyobj::mesh_t tinyObjMesh1 = shape1.mesh;
+
+    Mesh mesh1(tinyObjMesh1.indices, attrib1.vertices, attrib1.normals, attrib1.texcoords,
+            tinyObjMesh1);
+    std::cout << "Face count: " << mesh1.getFaceCount() << std::endl;
+
+    scene.addMesh(mesh1);
+
+    // Accel, integrator, camera
     KDTree accel(scene);
     NormalIntegrator integrator(accel);
 
@@ -97,7 +127,7 @@ int main() {
     fov = 2 * KIRYU_PI * fov / 360;
     Sensor sensor(position, target, up, fov, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    float outputFrame[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
+    float* outputFrame = new float[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
     for (int i = 0; i < WINDOW_WIDTH; i++) {
         for (int j = 0; j < WINDOW_HEIGHT; j++) {
             for (int k = 0; k < 3; k++) {
@@ -155,8 +185,6 @@ int main() {
         Screen *screen = static_cast<Screen *>(screenPtr);
         delete screen;
     }
-
-
 
     return EXIT_SUCCESS;
 }
