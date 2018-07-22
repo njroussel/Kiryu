@@ -48,6 +48,12 @@ set(TINYOBJLOADER_INCLUDE_DIR
 set(CompilerFlags ${CompilerFlags}
     TINYOBJLOADER_INCLUDE_DIR)
 
+## PCG
+set(PCG_INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/pcg-cpp/include)
+
+set(CompilerFlags ${CompilerFlags}
+    PCG_INCLUDE_DIR)
 
 ## Kiryu
 foreach(CompilerFlag ${CompilerFlags})

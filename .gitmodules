@@ -11,3 +11,6 @@
 [submodule "ext/tinyobjloader"]
 	path = ext/tinyobjloader
 	url = git@github.com:syoyo/tinyobjloader.git
+[submodule "ext/pcg-cpp"]
+	path = ext/pcg-cpp
+	url = git@github.com:imneme/pcg-cpp.git

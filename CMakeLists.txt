@@ -17,7 +17,7 @@ add_executable(kiryu
     include/kiryu/vector.h
     include/kiryu/ray.h
     include/kiryu/aabb.h
-
+    include/kiryu/rng.h
     include/kiryu/sensor.h
     include/kiryu/mesh.h
     include/kiryu/scene.h
@@ -29,6 +29,7 @@ add_executable(kiryu
     include/kiryu/screen.h
 
     # Source files
+    src/rng.cpp
     src/sensor.cpp
     src/mesh.cpp
     src/scene.cpp
@@ -52,6 +53,8 @@ target_include_directories(kiryu PRIVATE
     ${GLAD_INCLUDE_DIR}
     # TinyObjLoader OBJ mesh loader
     ${TINYOBJLOADER_INCLUDE_DIR}
+    # PCG Random number generator
+    ${PCG_INCLUDE_DIR}
     )
 
 target_link_libraries(kiryu glfw glad tinyobjloader ${CMAKE_THREAD_LIBS_INIT})

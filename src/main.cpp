@@ -8,6 +8,7 @@
 #include <kiryu/vector.h>
 #include <kiryu/ray.h>
 #include <kiryu/aabb.h>
+#include <kiryu/rng.h>
 #include <kiryu/sensor.h>
 #include <kiryu/mesh.h>
 #include <kiryu/scene.h>
@@ -18,11 +19,13 @@
 
 #define WINDOW_WIDTH 1080
 #define WINDOW_HEIGHT 720
+#define SAMPLE_COUNT 16
 #define KIRYU_GUI_ENABLE true
 
 static std::atomic_int pixelIndex(0);
+static RNG rng[4];
 
-static void tracePool(int i, Screen *screen, Sensor &sensor, Integrator &integrator,
+static void tracePool(int thredIndex, Screen *screen, Sensor &sensor, Integrator &integrator,
         float *outputFrame)
 {
     bool finished;
@@ -37,9 +40,16 @@ static void tracePool(int i, Screen *screen, Sensor &sensor, Integrator &integra
             int px = (startingPixelIndex + i) % WINDOW_WIDTH;
             int py = (startingPixelIndex + i) / WINDOW_WIDTH;
 
-            Ray3f ray = sensor.generateRay(px, py, 0.5, 0.5);
+            Color3f color(0.0);
 
-            Color3f color = integrator.Li(ray);
+            for (size_t j = 0; j < SAMPLE_COUNT; j++) {
+                Ray3f ray = sensor.generateRay(px, py,
+                        rng[thredIndex].nextFloat(),
+                        rng[thredIndex].nextFloat());
+                color += integrator.Li(ray);
+            }
+
+            color /= SAMPLE_COUNT;
 
             for (int k = 0; k < 3; k++) {
                 int index = py * (WINDOW_WIDTH * 3) + px * 3 + k;
