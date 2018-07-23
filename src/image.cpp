@@ -23,7 +23,7 @@ bool Image::writePng(const std::string &filename, const int width,
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             for (int k = 0; k < channels; k++) {
-                int index = j * width * channels + i * channels + k; 
+                int index = j * width * channels + i * channels + k;
                 uint8Data[index] = 255 * data[index];
             }
         }
