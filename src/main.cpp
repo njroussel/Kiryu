@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <tiny_obj_loader.h>
 
+#include <kiryu/image.h>
 #include <kiryu/vector.h>
 #include <kiryu/ray.h>
 #include <kiryu/aabb.h>
@@ -19,7 +20,7 @@
 
 #define WINDOW_WIDTH 1080
 #define WINDOW_HEIGHT 720
-#define SAMPLE_COUNT 16
+#define SAMPLE_COUNT 1
 #define KIRYU_GUI_ENABLE true
 
 static std::atomic_int pixelIndex(0);
@@ -87,8 +88,8 @@ int main() {
     tinyobj::shape_t shape0 = shapes0[0];
     tinyobj::mesh_t tinyObjMesh0 = shape0.mesh;
 
-    Mesh mesh0(tinyObjMesh0.indices, attrib0.vertices, attrib0.normals, attrib0.texcoords,
-            tinyObjMesh0);
+    Mesh mesh0(tinyObjMesh0.indices, attrib0.vertices, attrib0.normals,
+            attrib0.texcoords, tinyObjMesh0);
     std::cout << "Face count: " << mesh0.getFaceCount() << std::endl;
 
     scene.addMesh(mesh0);
@@ -191,10 +192,19 @@ int main() {
     if (KIRYU_GUI_ENABLE) {
         renderThreadPtr->join();
 
+        delete renderThreadPtr;
 
         Screen *screen = static_cast<Screen *>(screenPtr);
         delete screen;
     }
+
+    bool noError = Image::writePng("out.png", WINDOW_WIDTH, WINDOW_HEIGHT,
+            3, outputFrame);
+    if (!noError) {
+        std::cerr << "Could not wirte output image properly!" << std::endl;
+    }
+
+    delete[] outputFrame;
 
     return EXIT_SUCCESS;
 }

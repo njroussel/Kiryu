@@ -14,3 +14,6 @@
 [submodule "ext/pcg-cpp"]
 	path = ext/pcg-cpp
 	url = git@github.com:imneme/pcg-cpp.git
+[submodule "ext/stb"]
+	path = ext/stb
+	url = git@github.com:nothings/stb.git
