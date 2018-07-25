@@ -16,12 +16,12 @@ template <typename VectorType_> struct Ray {
         directionCwiseInv(direction_.cwiseInverse()), tMin(KIRYU_EPSILON),
         tMax(std::numeric_limits<ScalarType>::infinity()) { }
 
-    VectorType origin;
-    VectorType direction;
-    VectorType directionCwiseInv;
+    const VectorType origin;
+    const VectorType direction;
+    const VectorType directionCwiseInv;
 
-    ScalarType tMin;
-    ScalarType tMax;
+    const ScalarType tMin;
+    const ScalarType tMax;
 };
 
 typedef Ray<Vector3f> Ray3f;
