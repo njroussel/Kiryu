@@ -59,6 +59,8 @@ target_include_directories(kiryu PRIVATE
     ${PCG_INCLUDE_DIR}
     # STB Single file libraries (image read/write)
     ${STB_INCLUDE_DIR}
+    # JSON Json library
+    ${JSON_INCLUDE_DIR}
     )
 
 target_link_libraries(kiryu glfw glad tinyobjloader ${CMAKE_THREAD_LIBS_INIT})

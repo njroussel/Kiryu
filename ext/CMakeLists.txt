@@ -65,6 +65,19 @@ set(CompilerFlags ${CompilerFlags}
     STB_INCLUDE_DIR)
 
 
+## JSON
+set(JSON_BuildTests OFF CACHE BOOL " " FORCE)
+set(JSON_MultipleHeaders OFF CACHE BOOL " " FORCE)
+
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/json")
+
+set(JSON_INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/single_include)
+
+set(CompilerFlags ${CompilerFlags}
+    JSON_INCLUDE_DIR)
+
+
 ## Kiryu
 foreach(CompilerFlag ${CompilerFlags})
     set(${CompilerFlag} "${${CompilerFlag}}" PARENT_SCOPE)

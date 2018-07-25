@@ -77,6 +77,7 @@ void KDTree::buildTree(size_t depth, size_t faceCount, size_t *faceIndices,
 
         m_nodes.push_back(node);
     } else {
+        // TODO: SAH splitting
         uint8_t axis = (depth % 3 + 3) % 3; // guarantee pos
         Float axisSplitValueRatio = 0.5;
 

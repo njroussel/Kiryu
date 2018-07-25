@@ -2,8 +2,10 @@
 #include <thread>
 #include <atomic>
 #include <chrono>
+
 #include <Eigen/Dense>
 #include <tiny_obj_loader.h>
+#include <nlohmann/json.hpp>
 
 #include <kiryu/image.h>
 #include <kiryu/vector.h>
@@ -22,6 +24,8 @@
 #define WINDOW_HEIGHT 720
 #define SAMPLE_COUNT 1
 #define KIRYU_GUI_ENABLE true
+
+using nlohmann::json;
 
 static std::atomic_int pixelIndex(0);
 static RNG rng[4];
