@@ -5,11 +5,12 @@
 
 class Sensor {
     public:
-        Sensor(Vector3f position, Vector3f target, Vector3f up, Float fov,
-                uint16_t width, uint16_t height);
+        Sensor(const Vector3f position, const Vector3f target,
+                const Vector3f up, const Float fov, const uint16_t width,
+                const uint16_t height);
 
-        Ray3f generateRay(uint16_t xPixel, uint16_t yPixel, Float xSample,
-                Float ySample);
+        Ray3f generateRay(const uint16_t xPixel, const uint16_t yPixel,
+                const Float xSample, const Float ySample);
 
     private:
         const Vector3f m_position;
