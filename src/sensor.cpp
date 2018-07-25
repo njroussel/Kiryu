@@ -5,11 +5,8 @@
 
 Sensor::Sensor(Vector3f position, Vector3f target, Vector3f up, Float fov,
         uint16_t width, uint16_t height) :
-    m_position(position), m_target(target), m_up(up), m_fov(fov),
-    m_width(width), m_height(height) {
-        m_target.normalize();
-        m_up.normalize();
-    }
+    m_position(position), m_target(target.normalized()), m_up(up.normalized()),
+    m_fov(fov), m_width(width), m_height(height) { }
 
 Ray3f Sensor::generateRay(uint16_t xPixel, uint16_t yPixel, Float xSample,
         Float ySample)

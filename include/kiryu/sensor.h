@@ -12,10 +12,10 @@ class Sensor {
                 Float ySample);
 
     private:
-        Vector3f m_position;
-        Vector3f m_target;
-        Vector3f m_up;
-        Float m_fov;
-        uint16_t m_width;
-        uint16_t m_height;
+        const Vector3f m_position;
+        const Vector3f m_target;
+        const Vector3f m_up;
+        const Float m_fov;
+        const uint16_t m_width;
+        const uint16_t m_height;
 };
