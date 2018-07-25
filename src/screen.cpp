@@ -2,7 +2,7 @@
 
 #include <kiryu/screen.h>
 
-Screen::Screen(uint16_t width, uint16_t height):
+Screen::Screen(const uint16_t width, const uint16_t height):
     m_width(width), m_height(height), m_textureData(nullptr)
 {
     m_successInit = true;
@@ -87,7 +87,7 @@ Screen::Screen(uint16_t width, uint16_t height):
     glUseProgram(m_program);
 
     // Vertex attribute
-    GLint vPosLocation = glGetAttribLocation(m_program, "vPos");
+    const GLint vPosLocation = glGetAttribLocation(m_program, "vPos");
     if (vPosLocation < 0) {
         std::cerr << "Attribute \"vPos\" was not located!" << std::endl;
         m_successInit = false;
@@ -98,7 +98,7 @@ Screen::Screen(uint16_t width, uint16_t height):
     glEnableVertexAttribArray(vPosLocation);
 
     // Texture coordinates attribute
-    GLint texcoordLocation = glGetAttribLocation(m_program, "texCoord");
+    const GLint texcoordLocation = glGetAttribLocation(m_program, "texCoord");
     if (texcoordLocation < 0) {
         std::cerr << "Attribute \"texCoord\" was not located!" << std::endl;
         m_successInit = false;
@@ -117,7 +117,7 @@ void Screen::destroyWindowOnClose(GLFWwindow *window) {
     glfwDestroyWindow(window);
 }
 
-void Screen::bindTexture(float *pixels) {
+void Screen::bindTexture(const float *const pixels) {
     m_textureData = pixels;
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_texture);
