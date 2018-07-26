@@ -10,7 +10,11 @@ class Sensor {
                 const uint16_t height);
 
         Ray3f generateRay(const uint16_t xPixel, const uint16_t yPixel,
-                const Float xSample, const Float ySample);
+                const Float xSample, const Float ySample) const;
+
+        inline uint16_t getWidth() const { return m_width; }
+
+        inline uint16_t getHeight() const { return m_height; }
 
     private:
         const Vector3f m_position;

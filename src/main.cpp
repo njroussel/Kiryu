@@ -1,81 +1,31 @@
 #include <iostream>
 #include <fstream>
-#include <thread>
-#include <atomic>
-#include <chrono>
 
-#include <Eigen/Dense>
 #include <tiny_obj_loader.h>
 #include <nlohmann/json.hpp>
 
-#include <kiryu/image.h>
 #include <kiryu/vector.h>
-#include <kiryu/ray.h>
-#include <kiryu/aabb.h>
-#include <kiryu/rng.h>
 #include <kiryu/sensor.h>
 #include <kiryu/mesh.h>
 #include <kiryu/scene.h>
 #include <kiryu/bruteAccel.h>
 #include <kiryu/kdtree.h>
 #include <kiryu/normalIntegrator.h>
-#include <kiryu/screen.h>
+#include <kiryu/render.h>
 
 #define WINDOW_WIDTH 1080
 #define WINDOW_HEIGHT 720
-#define SAMPLE_COUNT 1
 #define KIRYU_GUI_ENABLE true
 
 using nlohmann::json;
-
-static std::atomic_int pixelIndex(0);
-static RNG rng[4];
-
-static void tracePool(int thredIndex, Screen *screen, Sensor &sensor, Integrator &integrator,
-        float *outputFrame)
-{
-    bool finished;
-    int rayCount = 1000;
-    while (true) {
-        int startingPixelIndex = pixelIndex.exchange(pixelIndex + rayCount);
-        for (int i = 0; i < rayCount; i++) {
-            if ((startingPixelIndex + i) >= WINDOW_WIDTH * WINDOW_HEIGHT) {
-                return;
-            }
-
-            int px = (startingPixelIndex + i) % WINDOW_WIDTH;
-            int py = (startingPixelIndex + i) / WINDOW_WIDTH;
-
-            Color3f color(0.0);
-
-            for (size_t j = 0; j < SAMPLE_COUNT; j++) {
-                Ray3f ray = sensor.generateRay(px, py,
-                        rng[thredIndex].nextFloat(),
-                        rng[thredIndex].nextFloat());
-                color += integrator.Li(ray);
-            }
-
-            color /= SAMPLE_COUNT;
-
-            for (int k = 0; k < 3; k++) {
-                int index = py * (WINDOW_WIDTH * 3) + px * 3 + k;
-                outputFrame[index] = color[k];
-            }
-        }
-
-        if (KIRYU_GUI_ENABLE) {
-            screen->texChanged();
-        }
-    }
-}
 
 int main() {
     std::ifstream i("../res/base.json");
     json j;
     i >> j;
     std::cout << j << std::endl;
-    float happy = j["happy"];
-    std::cout << happy << std::endl;
+    std::string accelType = j["accel"];
+    std::cout << accelType << std::endl;
 
     Scene scene;
 
@@ -150,73 +100,9 @@ int main() {
     fov = 2 * KIRYU_PI * fov / 360;
     Sensor sensor(position, target, up, fov, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    float* outputFrame = new float[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
-    for (int i = 0; i < WINDOW_WIDTH; i++) {
-        for (int j = 0; j < WINDOW_HEIGHT; j++) {
-            for (int k = 0; k < 3; k++) {
-                int index = j * (WINDOW_WIDTH * 3) + i * 3 + k;
-                outputFrame[index] = 1;
-            }
-        }
-    }
+    Render render;
 
-    Screen *screenPtr = nullptr;
-    std::thread *renderThreadPtr = nullptr;
-
-    if (KIRYU_GUI_ENABLE) {
-        Screen *screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
-        screenPtr = screen;
-
-        if (!screen->wasCreated()) {
-            std::cerr << "Could not create screen!" << std::endl;
-            return EXIT_FAILURE;
-        }
-
-        screen->bindTexture(outputFrame);
-
-        glfwMakeContextCurrent(NULL);
-        std::thread *renderThread = new std::thread(&Screen::renderTextureWhileActive, screen);
-        renderThreadPtr = renderThread;
-    }
-
-    int threadCount = std::thread::hardware_concurrency();
-
-    std::vector<std::thread> workers;
-    workers.reserve(threadCount);
-    std::cout << "Using " << threadCount << " thread(s)!" << std::endl;
-
-    auto startTime = std::chrono::system_clock::now();
-
-    for (int p = 0 ; p < threadCount; p++) {
-        workers.push_back(
-                std::thread(tracePool, p, screenPtr, std::ref(sensor),
-                    std::ref(integrator), outputFrame));
-    }
-    for (int p = 0 ; p < threadCount; p++)  {
-        workers[p].join();
-    }
-
-    auto endTime = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = endTime - startTime;
-    std::cout << "Rendering time: " << elapsed_seconds.count() << " seconds" <<
-        std::endl;
-
-    if (KIRYU_GUI_ENABLE) {
-        renderThreadPtr->join();
-
-        delete renderThreadPtr;
-
-        Screen *screen = static_cast<Screen *>(screenPtr);
-        delete screen;
-    }
-
-    bool noError = Image::writePng("out.png", WINDOW_WIDTH, WINDOW_HEIGHT,
-            3, outputFrame);
-    if (!noError) {
-        std::cerr << "Could not wirte output image properly!" << std::endl;
-    }
-
-    delete[] outputFrame;
+    render.render(KIRYU_GUI_ENABLE, "KiryuNormals", sensor, integrator);
 
     return EXIT_SUCCESS;
 }

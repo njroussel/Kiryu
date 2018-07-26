@@ -9,7 +9,7 @@ Sensor::Sensor(const Vector3f position, const Vector3f target, const Vector3f up
     m_fov(fov), m_width(width), m_height(height) { }
 
 Ray3f Sensor::generateRay(const uint16_t xPixel, const uint16_t yPixel,
-        const Float xSample, const Float ySample)
+        const Float xSample, const Float ySample) const
 {
     const Float sensorEpsilon = 1e-4;
 
