@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include <atomic>
 #include <chrono>
@@ -69,6 +70,13 @@ static void tracePool(int thredIndex, Screen *screen, Sensor &sensor, Integrator
 }
 
 int main() {
+    std::ifstream i("../res/base.json");
+    json j;
+    i >> j;
+    std::cout << j << std::endl;
+    float happy = j["happy"];
+    std::cout << happy << std::endl;
+
     Scene scene;
 
     // MESH0
