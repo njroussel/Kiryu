@@ -29,6 +29,7 @@ add_executable(kiryu
     include/kiryu/normalIntegrator.h
     include/kiryu/screen.h
     include/kiryu/render.h
+    include/kiryu/parser.h
 
     # Source files
     src/image.cpp
@@ -43,6 +44,7 @@ add_executable(kiryu
     src/normalIntegrator.cpp
     src/screen.cpp
     src/render.cpp
+    src/parser.cpp
     src/main.cpp
     )
 

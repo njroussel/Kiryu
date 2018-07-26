@@ -8,9 +8,10 @@
         "width": 1080,
         "heigh": 720
     },
-    "mesh": {
-        "file": "./models/kiryu.obj"
-    },
+    "meshes": [
+        { "file": "./models/kiryu.obj" },
+        { "file": "./models/teapot.obj" }
+    ],
     "integrator": "normal",
     "accel": "kdtree"
 }
