@@ -29,8 +29,8 @@ class Mesh {
                 Vector3f &outIntersectionPoint, Float &u, Float &v) const;
     private:
         const size_t m_faceCount;
-        const std::vector<tinyobj::index_t> &m_indices;
-        const std::vector<Float> &m_vertices;
-        const std::vector<Float> &m_normals;
-        const std::vector<Float> &m_texCoords;
+        const std::vector<tinyobj::index_t> m_indices;
+        const std::vector<Float> m_vertices;
+        const std::vector<Float> m_normals;
+        const std::vector<Float> m_texCoords;
 };
