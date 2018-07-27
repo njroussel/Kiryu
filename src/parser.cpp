@@ -59,6 +59,12 @@ bool Parser::parseMeshes(const std::vector<Json> &jsonMeshes) {
     std::string path = m_fileName.substr(0, index);
 
     for (Json jsonMesh : jsonMeshes) {
+        // TODO: Dynamically allocate Mesh here. They can be potentially very
+        // large and the implementaion copies them in the Mesh aswell as the
+        // Scene class (change both classes accordingly). The bulk of their data
+        // is already on the heap due to the internal std::vector Mesh and Scene
+        // use. Trying to keep the wrappers on the stack doesn't help. 
+
         const std::string meshFile = jsonMesh["file"];
         const std::string meshPath = path + meshFile.substr(1, meshFile.size());
 
