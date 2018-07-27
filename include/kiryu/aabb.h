@@ -15,6 +15,9 @@ template <typename VectorType_> struct AABB {
         min(std::numeric_limits<ScalarType>::infinity()),
         max(-std::numeric_limits<ScalarType>::infinity()) { }
 
+    template <typename Derived> AABB(const AABB<Derived> aabb) :
+        min(aabb.min), max(aabb.max) { }
+
     template <typename Derived> AABB(const Derived &point) :
         min(point), max(point) { }
 

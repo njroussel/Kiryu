@@ -24,12 +24,11 @@ void Render::render(const bool gui, const std::string renderName,
         }
     }
 
-    Screen *screenPtr = nullptr;
-    std::thread *renderThreadPtr = nullptr;
+    Screen *screen = nullptr;
+    std::thread *renderThread = nullptr;
 
     if (gui) {
-        Screen *screen = new Screen(sensorWidth, sensorHeight);
-        screenPtr = screen;
+        screen = new Screen(sensorWidth, sensorHeight);
 
         if (!screen->wasCreated()) {
             std::cerr << "Could not create screen!" << std::endl;
@@ -39,8 +38,7 @@ void Render::render(const bool gui, const std::string renderName,
         screen->bindTexture(outputFrame);
 
         glfwMakeContextCurrent(NULL);
-        std::thread *renderThread = new std::thread(&Screen::renderTextureWhileActive, screen);
-        renderThreadPtr = renderThread;
+        renderThread = new std::thread(&Screen::renderTextureWhileActive, screen);
     }
 
     const int threadCount = std::thread::hardware_concurrency();
@@ -53,7 +51,7 @@ void Render::render(const bool gui, const std::string renderName,
 
     for (int p = 0 ; p < threadCount; p++) {
         workers.push_back(
-                std::thread(&Render::tracePool, this, p, gui, screenPtr, std::ref(sensor),
+                std::thread(&Render::tracePool, this, p, gui, screen, std::ref(sensor),
                     std::ref(integrator), outputFrame));
     }
     for (int p = 0 ; p < threadCount; p++)  {
@@ -66,11 +64,9 @@ void Render::render(const bool gui, const std::string renderName,
         std::endl;
 
     if (gui) {
-        renderThreadPtr->join();
+        renderThread->join();
 
-        delete renderThreadPtr;
-
-        Screen *screen = static_cast<Screen *>(screenPtr);
+        delete renderThread;
         delete screen;
     }
 
@@ -95,6 +91,9 @@ void Render::tracePool(const int threadIndex, const bool gui, Screen *screen,
         int startingPixelIndex = m_pixelIndex.exchange(m_pixelIndex + rayCount);
         for (int i = 0; i < rayCount; i++) {
             if ((startingPixelIndex + i) >= sensorWidth * sensorHeight) {
+                if (gui) {
+                    screen->texChanged();
+                }
                 return;
             }
 
@@ -112,9 +111,9 @@ void Render::tracePool(const int threadIndex, const bool gui, Screen *screen,
 
             color /= SAMPLE_COUNT;
 
+            const int index = py * (sensorWidth * 3) + px * 3;
             for (int k = 0; k < 3; k++) {
-                const int index = py * (sensorWidth* 3) + px * 3 + k;
-                outputFrame[index] = color[k];
+                outputFrame[index + k] = color[k];
             }
         }
 

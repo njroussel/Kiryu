@@ -13,8 +13,8 @@
 #include <kiryu/normalIntegrator.h>
 #include <kiryu/render.h>
 
-#define WINDOW_WIDTH 1080
-#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH 400
+#define WINDOW_HEIGHT 200
 #define KIRYU_GUI_ENABLE true
 
 using nlohmann::json;
@@ -47,11 +47,10 @@ int main() {
     }
 
     std::cout << "Shapes: " << shapes0.size() << std::endl;
-    tinyobj::shape_t shape0 = shapes0[0];
-    tinyobj::mesh_t tinyObjMesh0 = shape0.mesh;
+    tinyobj::mesh_t *tinyObjMesh0 = &(shapes0[0].mesh);
 
-    Mesh mesh0(tinyObjMesh0.indices, attrib0.vertices, attrib0.normals,
-            attrib0.texcoords, tinyObjMesh0);
+    Mesh mesh0(tinyObjMesh0->indices, attrib0.vertices, attrib0.normals,
+            attrib0.texcoords, *tinyObjMesh0);
     std::cout << "Face count: " << mesh0.getFaceCount() << std::endl;
 
     scene.addMesh(mesh0);
@@ -74,11 +73,10 @@ int main() {
     }
 
     std::cout << "Shapes: " << shapes1.size() << std::endl;
-    tinyobj::shape_t shape1 = shapes1[0];
-    tinyobj::mesh_t tinyObjMesh1 = shape1.mesh;
+    tinyobj::mesh_t *tinyObjMesh1 = &(shapes1[0].mesh);
 
-    Mesh mesh1(tinyObjMesh1.indices, attrib1.vertices, attrib1.normals, attrib1.texcoords,
-            tinyObjMesh1);
+    Mesh mesh1(tinyObjMesh1->indices, attrib1.vertices, attrib1.normals,
+            attrib1.texcoords, *tinyObjMesh1);
     std::cout << "Face count: " << mesh1.getFaceCount() << std::endl;
 
     scene.addMesh(mesh1);
@@ -103,6 +101,8 @@ int main() {
     Render render;
 
     render.render(KIRYU_GUI_ENABLE, "KiryuNormals", sensor, integrator);
+
+    i.close();
 
     return EXIT_SUCCESS;
 }
