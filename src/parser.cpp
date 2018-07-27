@@ -84,10 +84,6 @@ bool Parser::parseMeshes(const std::vector<Json> &jsonMeshes) {
         std::cout << "Shapes: " << shapes.size() << std::endl;
         tinyobj::mesh_t *tinyObjMesh = &(shapes[0].mesh);
 
-        Mesh mesh(tinyObjMesh->indices, attrib.vertices, attrib.normals,
-                attrib.texcoords, *tinyObjMesh);
-        std::cout << "Face count: " << mesh.getFaceCount() << std::endl;
-
         m_scene.addMesh(Mesh(tinyObjMesh->indices, attrib.vertices, attrib.normals,
                     attrib.texcoords, *tinyObjMesh));
     }
@@ -124,12 +120,12 @@ bool Parser::parseSensor(const Json &jsonSensor) {
     Float fov = jsonSensor["fov"];
     uint64_t width = jsonSensor["width"];
     uint16_t height = jsonSensor["height"];
-    
+
     m_sensor = new Sensor(
             Vector3f(position.data()), 
             Vector3f(target.data()), 
             Vector3f(up.data()), 
-            fov,
+            2 * KIRYU_PI * fov / 360,
             width, 
             height);
 

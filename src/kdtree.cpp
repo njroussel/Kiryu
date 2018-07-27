@@ -41,8 +41,7 @@ KDTree::KDTree(const Scene &scene) : Accel(scene) {
     size_t totalFaceCount = 0;
     AABB3f aabb;
 
-    const std::vector<std::reference_wrapper<const Mesh>> &meshes =
-        *m_scene.getMeshes();
+    const std::vector<Mesh> &meshes = *m_scene.getMeshes();
 
     for (size_t i = 0; i < meshes.size(); i++) {
         const Mesh &mesh = meshes[i];
@@ -90,8 +89,7 @@ void KDTree::buildTree(size_t depth, size_t faceCount, size_t *faceIndices,
         node.initTreeNode(axis, axisSplitValue);
         m_nodes.push_back(node);
 
-        const std::vector<std::reference_wrapper<const Mesh>> &meshes =
-            *m_scene.getMeshes();
+        const std::vector<Mesh> &meshes = *m_scene.getMeshes();
 
         size_t meshIndex = 0;
         size_t cumFaceCountOffset = 0;
@@ -111,7 +109,7 @@ void KDTree::buildTree(size_t depth, size_t faceCount, size_t *faceIndices,
             }
 
             AABB3f aabb;
-            meshes[meshIndex].get().
+            meshes[meshIndex].
                 getAABB(faceIndices[i] - cumFaceCountOffset, aabb);
 
 
@@ -158,8 +156,7 @@ void KDTree::recurseTraverse(size_t nodeIndex, const Ray3f &ray,
         Intersection &its, Vector3f &itsPoint, Float &minIntersectionDistance,
         Float &u, Float &v) const
 {
-    const std::vector<std::reference_wrapper<const Mesh>> &meshes =
-        *m_scene.getMeshes();
+    const std::vector<Mesh> &meshes = *m_scene.getMeshes();
 
     if (m_nodes[nodeIndex].isLeafNode() &&
             m_nodes[nodeIndex].getFaceCount() == 0) {
@@ -183,7 +180,7 @@ void KDTree::recurseTraverse(size_t nodeIndex, const Ray3f &ray,
                     }
                 }
 
-                bool intersection = meshes[meshIndex].get().intersectRay(ray, 
+                bool intersection = meshes[meshIndex].intersectRay(ray, 
                         m_allFaceIndices[f] - cumFaceCountOffset,
                         itsPoint, u, v);
 
@@ -196,7 +193,7 @@ void KDTree::recurseTraverse(size_t nodeIndex, const Ray3f &ray,
                         its.p = itsPoint;
                         its.u = u;
                         its.v = v;
-                        its.mesh = &(meshes[meshIndex].get());
+                        its.mesh = &(meshes[meshIndex]);
                         its.faceIndex = m_allFaceIndices[f] - cumFaceCountOffset;
                     }
                 }

@@ -27,6 +27,7 @@ class Mesh {
         //TODO: Make this take an Intersection struct
         bool intersectRay(const Ray3f &ray, const size_t faceIndex,
                 Vector3f &outIntersectionPoint, Float &u, Float &v) const;
+
     private:
         const size_t m_faceCount;
         const std::vector<tinyobj::index_t> m_indices;

@@ -8,10 +8,10 @@ class Scene {
 
         void addMesh(const Mesh &mesh);
 
-        inline const std::vector<std::reference_wrapper<const Mesh>>* getMeshes() const {
+        inline const std::vector<Mesh>* getMeshes() const {
             return &m_meshes;
         }
 
     private:
-        std::vector<std::reference_wrapper<const Mesh>> m_meshes;
+        std::vector<Mesh> m_meshes;
 };
