@@ -54,7 +54,6 @@ bool Parser::parse() {
 }
 
 bool Parser::parseMeshes(const std::vector<Json> &jsonMeshes) {
-
     size_t index = m_fileName.find_last_of("/");
     std::string path = m_fileName.substr(0, index);
 
